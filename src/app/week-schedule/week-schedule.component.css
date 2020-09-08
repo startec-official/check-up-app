@@ -1,0 +1,5 @@
+input {
+    outline: 0;
+    border-width: 0 0 3px !important;
+    border-color: #212121; 
+}

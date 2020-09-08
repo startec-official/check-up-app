@@ -2,13 +2,15 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
+import { WeekScheduleComponent } from './week-schedule/week-schedule.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    WeekScheduleComponent
   ],
   imports: [
-    BrowserModule
+    BrowserModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

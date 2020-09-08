@@ -1,0 +1,78 @@
+<div class="container">
+    <div class="row">
+        <div class="col-md-12 mx-auto border border-dark p-5">
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <img src="assets\img\cross.png" alt="logo.png" style="margin-right: 0.5em;"><a class="navbar-brand" href="">Hospitalier Hospital</a>
+        </nav>
+        <h1 style="margin-bottom: 1em;">Weekly Scheduling Sheet</h1>
+        <div class="form-group">
+            <div class="row">
+            <div class="col-md-5">
+                <input type="text"
+                    name="lastName"
+                    id="lastName"
+                    class="form-control rounded-0">
+                <small id="lastNameHelpId" class="text-muted">Last Name</small>
+            </div>
+            <div class="col-md-5">
+                <input type="text"
+                    name="firstName"
+                    id="firstName"
+                    class="form-control rounded-0">
+                <small id="firstNameHelpId" class="text-muted">First Name</small>
+            </div>
+            <div class="col-md-2">
+                <input type="text"
+                    name="MI"
+                    id="MI"
+                    class="form-control rounded-0">
+                <small id="MIHelpId" class="text-muted">M.I.</small>
+            </div>
+            </div>
+            <div class="row py-5">
+            <div class="col-md-5">
+                <input type="text"
+                    name="specialty"
+                    id="specialty"
+                    class="form-control rounded-0">
+                <small id="specialtyHelpId" class="text-muted">Specialty</small>
+            </div>
+            </div>
+        </div>
+    
+        <h1>Schedule</h1>
+        <div class="form-group" *ngFor="let day of daysOfWeek; let i = index">
+            <h4>{{day}}</h4>
+            <br>
+            <div class="row py-4">
+            <div class="col-xs-4 px-4">
+                <label [for]="( 'timeIn' + i )">Time In:</label>
+                <input type="time"
+                class="form-control rounded-0" 
+                [name]="( 'timeIn' + i )"
+                [id]="( 'timeIn' + i )"> 
+            </div>
+            <div class="col-xs-4">
+                <label [for]="( 'timeOut' + i )">Time Out:</label>
+                <input type="time"
+                class="form-control rounded-0" 
+                [name]="( 'timeOut' + i )"
+                [id]="( 'timeOut' + i )"> 
+            </div>
+            <div class="col-xs-4 px-4">
+                <label [for]="( 'appCount' + i )">Est. No of Appointments:</label>
+                <input type="number"
+                class="form-control rounded-0" 
+                [name]="( 'appCount' + i )"
+                [id]="( 'appCount' + i )">
+            </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 mx-auto">
+            <button class="btn btn-outline btn-primary">Submit</button>
+            </div>
+        </div>
+        </div>
+    </div>
+    </div>
