@@ -4,75 +4,137 @@
         <nav class="navbar navbar-expand-lg navbar-light">
             <img src="assets\img\cross.png" alt="logo.png" style="margin-right: 0.5em;"><a class="navbar-brand" href="">Hospitalier Hospital</a>
         </nav>
+
         <h1 style="margin-bottom: 1em;">Weekly Scheduling Sheet</h1>
-        <div class="form-group">
+
+        <form [formGroup]="personalInfo">
+            <small class="form-text text-danger"
+                       *ngIf="personalInfo.invalid">
+                    Complete this section.
+            </small>
+            <div class="form-group">
+                <div class="row">
+                <div class="col-md-5">
+                    <input type="text"
+                        name="lastName"
+                        formControlName="lastName"
+                        id="lastName"
+                        class="form-control rounded-0">
+                    <small id="lastNameHelpId" class="text-muted">Last Name</small>
+                </div>
+                <div class="col-md-5">
+                    <input type="text"
+                        name="firstName"
+                        formControlName="firstName"
+                        id="firstName"
+                        class="form-control rounded-0">
+                    <small id="firstNameHelpId" class="text-muted">First Name</small>
+                </div>
+                <div class="col-md-2">
+                    <input type="text"
+                        name="MI"
+                        formControlName="MI"
+                        id="MI"
+                        class="form-control rounded-0">
+                    <small id="MIHelpId" class="text-muted">M.I.</small>
+                </div>
+                </div>
+                <div class="row py-5">
+                <div class="col-md-5">
+                    <input type="text"
+                        name="specialty"
+                        formControlName="specialty"
+                        id="specialty"
+                        class="form-control rounded-0">
+                    <small id="specialtyHelpId" class="text-muted">Specialty</small>
+                </div>
+                </div>
+            </div>
+        </form>
+
+        <form *ngFor="let dayForm of dayForms; let day = index" [formGroup]="dayForm">
+            <hr>
             <div class="row">
-            <div class="col-md-5">
-                <input type="text"
-                    name="lastName"
-                    id="lastName"
-                    class="form-control rounded-0">
-                <small id="lastNameHelpId" class="text-muted">Last Name</small>
+                <h4 class="my-auto">{{daysOfWeek[day]}}</h4>
+                <button class="btn mx-2 my-auto btn-sm"
+                        (click)="toggleAway(day)"
+                        [ngClass]="{'btn-outline-warning' : this.dayFormDisabled[day] , 'btn-outline-secondary' : !this.dayFormDisabled[day] }">Away</button>
             </div>
-            <div class="col-md-5">
-                <input type="text"
-                    name="firstName"
-                    id="firstName"
-                    class="form-control rounded-0">
-                <small id="firstNameHelpId" class="text-muted">First Name</small>
+            <div class="row">
+                <small class="form-text text-danger"
+                       *ngIf="dayForm.invalid && !this.dayFormDisabled[day]">
+                    You left some fields blank.
+                </small>
             </div>
-            <div class="col-md-2">
-                <input type="text"
-                    name="MI"
-                    id="MI"
-                    class="form-control rounded-0">
-                <small id="MIHelpId" class="text-muted">M.I.</small>
-            </div>
-            </div>
-            <div class="row py-5">
-            <div class="col-md-5">
-                <input type="text"
-                    name="specialty"
-                    id="specialty"
-                    class="form-control rounded-0">
-                <small id="specialtyHelpId" class="text-muted">Specialty</small>
-            </div>
-            </div>
-        </div>
-    
-        <h1>Schedule</h1>
-        <div class="form-group" *ngFor="let day of daysOfWeek; let i = index">
-            <h4>{{day}}</h4>
-            <br>
-            <div class="row py-4">
-            <div class="col-xs-4 px-4">
-                <label [for]="( 'timeIn' + i )">Time In:</label>
-                <input type="time"
-                class="form-control rounded-0" 
-                [name]="( 'timeIn' + i )"
-                [id]="( 'timeIn' + i )"> 
-            </div>
-            <div class="col-xs-4">
-                <label [for]="( 'timeOut' + i )">Time Out:</label>
-                <input type="time"
-                class="form-control rounded-0" 
-                [name]="( 'timeOut' + i )"
-                [id]="( 'timeOut' + i )"> 
-            </div>
-            <div class="col-xs-4 px-4">
-                <label [for]="( 'appCount' + i )">Est. No of Appointments:</label>
-                <input type="number"
-                class="form-control rounded-0" 
-                [name]="( 'appCount' + i )"
-                [id]="( 'appCount' + i )">
-            </div>
-            </div>
-        </div>
+            <ng-container *ngIf="!this.dayFormDisabled[day]">
+                <ng-container *ngFor="let dayFormGroup of dayForm.controls; let i = index">
+                    <div [formGroup]="dayFormGroup" class="form-group">
+                        <br>
+                        <div class="row py-2">
+                        <div class="col-xs-4 px-4">
+                            <label for="timein">Time In:</label>
+                            <input type="time"
+                            class="form-control rounded-0"
+                            formControlName="timein"> 
+                        </div>
+                        <div class="col-xs-4">
+                            <label for="timeout">Time Out:</label>
+                            <input type="time"
+                            class="form-control rounded-0"
+                            formControlName="timeout"> 
+                        </div>
+                        <div class="col-xs-4 px-4">
+                            <label for="appCount">Est. No of Appointments:</label>
+                            <input type="number"
+                            class="form-control rounded-0" 
+                            formControlName="appCount">
+                        </div>
+                        <div class="col-xs-2 px-1 my-auto">
+                            <button class="btn btn-outline-danger"
+                                    [disabled]="i === 0"
+                                    (click)="removeBlock(dayForm, i)">&times;</button>
+                        </div>
+                    </div>
+                    </div>
+                </ng-container>
+            </ng-container>
+            <button class="btn btn-outline-primary my-4"
+                    (click)="addGroup(dayForm)"
+                    *ngIf="!this.dayFormDisabled[day]">Add Schedule Block</button>
+             <!-- replace 0 with index once abstracted -->
+             <hr>
+        </form>
         <div class="row">
             <div class="col-xs-12 mx-auto">
-            <button class="btn btn-outline btn-primary">Submit</button>
+            <button class="btn btn-success btn-lg"
+                    (click)="onSubmit()">Submit</button>
             </div>
         </div>
         </div>
     </div>
+</div>
+
+<!-- The Modal -->
+<div class="modal" id="myModal" [ngClass]="{'show':showErrorMessage }">
+    <div class="modal-dialog">
+      <div class="modal-content">
+  
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Invalid Input</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+  
+        <!-- Modal body -->
+        <div class="modal-body">
+          Please check that all field have valid inputs.
+        </div>
+  
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-dismiss="modal" (click)="showErrorMessage = false">Close</button>
+        </div>
+  
+      </div>
     </div>
+  </div>

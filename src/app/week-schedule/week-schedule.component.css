@@ -3,3 +3,7 @@ input {
     border-width: 0 0 3px !important;
     border-color: #212121; 
 }
+
+.show {
+    display: block !important;
+}
