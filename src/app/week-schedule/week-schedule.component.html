@@ -58,7 +58,10 @@
                 <h4 class="my-auto">{{daysOfWeek[day]}}</h4>
                 <button class="btn mx-2 my-auto btn-sm"
                         (click)="toggleAway(day)"
-                        [ngClass]="{'btn-outline-warning' : this.dayFormDisabled[day] , 'btn-outline-secondary' : !this.dayFormDisabled[day] }">Away</button>
+                        [ngClass]="{'btn-outline-warning' : !this.dayFormDisabled[day] , 'btn-outline-secondary' : this.dayFormDisabled[day] }">
+                    <span *ngIf="!this.dayFormDisabled[day]">In</span>
+                    <span *ngIf="this.dayFormDisabled[day]">Out</span>
+                </button>
             </div>
             <div class="row">
                 <small class="form-text text-danger"
@@ -118,7 +121,7 @@
 <div class="modal" id="myModal" [ngClass]="{'show':showErrorMessage }">
     <div class="modal-dialog">
       <div class="modal-content">
-  
+          <!-- TODO: Add Review Content Message -->
         <!-- Modal Header -->
         <div class="modal-header">
           <h4 class="modal-title">Invalid Input</h4>
@@ -129,7 +132,7 @@
         <div class="modal-body">
           Please check that all field have valid inputs.
         </div>
-  
+        
         <!-- Modal footer -->
         <div class="modal-footer">
           <button type="button" class="btn btn-danger" data-dismiss="modal" (click)="showErrorMessage = false">Close</button>
