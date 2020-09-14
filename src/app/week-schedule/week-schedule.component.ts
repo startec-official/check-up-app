@@ -1,7 +1,9 @@
 import { Component, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
-import { UtilsService } from '../utils.service';
+import { UtilsService } from '../utils/utils.service';
 import { FormArray, FormGroup, FormControl, Validators, FormsModule } from '@angular/forms';
-import { AppEntry } from '../app-entry';
+import { AppEntry } from '../utils/app-entry';
+import { HttpClient } from '@angular/common/http';
+import { HttpAppService } from '../utils/http.app.service';
 
 @Component({
   selector: 'app-week-schedule',
@@ -22,7 +24,7 @@ export class WeekScheduleComponent implements OnInit {
 
   private utilsService : UtilsService;
   
-  constructor( _utilsService : UtilsService) {
+  constructor( _utilsService : UtilsService , private httpService : HttpAppService ) {
     this.utilsService = _utilsService;
   }
 
@@ -83,9 +85,9 @@ export class WeekScheduleComponent implements OnInit {
           }
         });
       });
-      console.log(this.appEntries);
+      // console.log(this.appEntries);
     }
-
-    // TODO: NEXT: Send data through to database through a service
+    // TODO: make a service for sending data
+    this.httpService.postData( this.appEntries );
   }
 }
