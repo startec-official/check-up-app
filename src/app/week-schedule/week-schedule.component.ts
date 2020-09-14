@@ -2,7 +2,6 @@ import { Component, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { UtilsService } from '../utils/utils.service';
 import { FormArray, FormGroup } from '@angular/forms';
 import { AppEntry } from '../utils/app-entry';
-import { HttpClient } from '@angular/common/http';
 import { HttpAppService } from '../utils/http.app.service';
 import { FormService } from '../utils/form.service';
 
@@ -20,6 +19,8 @@ export class WeekScheduleComponent implements OnInit {
 
   personalInfo : FormGroup;
   showErrorMessage : boolean = false;
+  showReviewMessage : boolean = false;
+  isLoading : boolean = false;
   
   appEntries : AppEntry[] = [];
 
@@ -31,7 +32,7 @@ export class WeekScheduleComponent implements OnInit {
     this.utilsService = _utilsService;
   }
 
-  ngOnInit(): void { // TODO: place form processes into service
+  ngOnInit(): void {
     this.daysOfWeek = this.utilsService.getCurrentWeek();
 
     this.personalInfo = this.formService.generatePersonalForm();
@@ -66,15 +67,29 @@ export class WeekScheduleComponent implements OnInit {
     // this.showErrorMessage = ( flag || !this.personalInfo.valid);
 
     if (!flag) {
-      this.dayForms.forEach( (currentDayForm : FormArray) => {
-        currentDayForm.controls.forEach( formControl => {
-          if ( formControl.value.timein !== "" ) {
-            this.appEntries.push( new AppEntry( formControl.value.appDate , formControl.value.appCount , formControl.value.timein , formControl.value.timeout ) ); 
-          }
-        });
-      });
-      console.log(`list of app entries:\n${this.appEntries}`);
+      this.showReviewMessage = true;
+      this.isLoading = true;
     }
-    this.httpService.postData( AppEntry.simplify(this.appEntries) ); // TODO: clear array after submit
+    else {
+      this.showErrorMessage = true;
+    }
+  }
+
+  onConfirmedSubmit() {
+    this.dayForms.forEach( (currentDayForm : FormArray) => {
+      currentDayForm.controls.filter( 
+        fformControl => fformControl.value.timein !== '' &&
+                        fformControl.value.timeout !== ''
+      ).forEach( formControl => {
+        this.appEntries.push( new AppEntry( formControl.value.appDate , formControl.value.appCount , formControl.value.timein , formControl.value.timeout ) ); 
+      });
+    });
+    console.log( this.appEntries );
+    this.httpService.postData( AppEntry.simplify(this.appEntries) , () => {
+      this.appEntries = [];
+      this.isLoading = false;
+    });
+
+    this.showReviewMessage = false;
   }
 }

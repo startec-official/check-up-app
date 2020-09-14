@@ -8,11 +8,16 @@ export class HttpAppService {
 
   constructor( private http : HttpClient ) { }
 
-  public postData( data : any ) { // TODO: place the url address in an environment variable
+  public postData( data : any , callback? : Function ) {
     this.http.post('http://localhost:3000/save',JSON.stringify( data ),{
       headers: { 'Content-Type' : 'application/json' }
-    }).subscribe((data)=>{
+    }).subscribe((data) => {
       console.log(`The request was executed with the ffg response: ${data}`);
      });
+     try {
+      callback();
+    } catch( err ) {
+      console.log( 'no function passed as callback' );
+    }
   }
 }

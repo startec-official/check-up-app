@@ -110,22 +110,52 @@
         <div class="row">
             <div class="col-xs-12 mx-auto">
             <button class="btn btn-success btn-lg"
-                    (click)="onSubmit()">Submit</button>
+                    type="button"
+                    (click)="onSubmit()"
+                    [disabled]="isLoading">
+                    <span class="spinner-border spinner-border-lg" role="status" aria-hidden="true" *ngIf="isLoading"></span>
+                    Submit
+                </button>
             </div>
         </div>
         </div>
     </div>
 </div>
+<!-- The Review Modal -->
+<div class="modal" id="myModal" [ngClass]="{'show': showReviewMessage }">
+    <div class="modal-dialog">
+      <div class="modal-content">
+          
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Review Data</h4>
+          <button type="button" class="close" data-dismiss="modal" (click)="showReviewMessage = false">&times;</button>
+        </div>
+  
+        <!-- Modal body -->
+        <div class="modal-body">
+          Are you sure you want to pass your schedule?
+        </div>
+        
+        <!-- Modal footer -->
+        <div class="modal-footer">
+            <button type="button" class="btn btn-success" data-dismiss="modal" (click)="onConfirmedSubmit()">Confirm</button>
+          <button type="button" class="btn btn-danger" data-dismiss="modal" (click)="showReviewMessage = false">Close</button>
+        </div>
+  
+      </div>
+    </div>
+  </div>
 
-<!-- The Modal -->
+<!-- The Error Modal -->
 <div class="modal" id="myModal" [ngClass]="{'show':showErrorMessage }">
     <div class="modal-dialog">
       <div class="modal-content">
-          <!-- TODO: Add Review Content Message -->
+          
         <!-- Modal Header -->
         <div class="modal-header">
           <h4 class="modal-title">Invalid Input</h4>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <button type="button" class="close" data-dismiss="modal" (click)="showErrorMessage = false">&times;</button>
         </div>
   
         <!-- Modal body -->
