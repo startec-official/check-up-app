@@ -28,7 +28,7 @@ export class WeekScheduleComponent implements OnInit {
     this.utilsService = _utilsService;
   }
 
-  ngOnInit(): void {
+  ngOnInit(): void { // TODO: place form processes into service
     this.daysOfWeek = this.utilsService.getCurrentWeek();
 
     this.personalInfo = new FormGroup({
@@ -43,6 +43,7 @@ export class WeekScheduleComponent implements OnInit {
       this.dayFormDisabled[i ++] = false;
       this.dayForms.push( new FormArray([
         new FormGroup({
+          appDate : new FormControl( day ),
           timein : new FormControl('',Validators.required),
           timeout : new FormControl('',Validators.required),
           appCount : new FormControl('',Validators.required)
@@ -51,8 +52,9 @@ export class WeekScheduleComponent implements OnInit {
     });
   }
 
-  addGroup( dayForm : FormArray ) {
+  addGroup( dayForm : FormArray , inputAppDate : string ) {
     dayForm.push( new FormGroup({
+      appDate : new FormControl( inputAppDate ),
       timein : new FormControl('',Validators.required),
       timeout : new FormControl('',Validators.required),
       appCount : new FormControl('',Validators.required)
@@ -81,13 +83,12 @@ export class WeekScheduleComponent implements OnInit {
       this.dayForms.forEach( (currentDayForm : FormArray) => {
         currentDayForm.controls.forEach( formControl => {
           if ( formControl.value.timein !== "" ) {
-            this.appEntries.push( new AppEntry( formControl.value.appCount , formControl.value.timein , formControl.value.timeout ) ); 
+            this.appEntries.push( new AppEntry( formControl.value.appDate , formControl.value.appCount , formControl.value.timein , formControl.value.timeout ) ); 
           }
         });
       });
-      // console.log(this.appEntries);
+      console.log(`list of app entries:\n${this.appEntries}`);
     }
-    // TODO: make a service for sending data
-    this.httpService.postData( this.appEntries );
+    this.httpService.postData( AppEntry.simplify(this.appEntries) ); // TODO: clear array after submit
   }
 }

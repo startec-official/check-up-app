@@ -17,7 +17,7 @@ export class UtilsService {
     var days = [];
   
     for (var i = 0; i <= 6; i++) {
-      days.push(moment(weekStart).add(i, 'days').format("MMMM Do,dddd"));
+      days.push(moment(weekStart).add(i, 'days').format("MMMM Do YYYY, dddd"));
     }
     return days;
   }

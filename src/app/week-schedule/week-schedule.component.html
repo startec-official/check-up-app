@@ -102,7 +102,7 @@
                 </ng-container>
             </ng-container>
             <button class="btn btn-outline-primary my-4"
-                    (click)="addGroup(dayForm)"
+                    (click)="addGroup(dayForm , daysOfWeek[day])"
                     *ngIf="!this.dayFormDisabled[day]">Add Schedule Block</button>
              <!-- replace 0 with index once abstracted -->
              <hr>
