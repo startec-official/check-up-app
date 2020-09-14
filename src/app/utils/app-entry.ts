@@ -24,8 +24,11 @@ export class AppEntry implements AppEntryInterface {
         let rows = [];
         appEntries.forEach( entry => {
             const entryTime = `${entry.startTime}-${entry.endTime}`;
-            if( rows.filter( rowEntry => rowEntry === entryTime ).length < 1 ) // check for duplicates
+            if( rows.filter( rowEntry => 
+                    rowEntry.date === entry.appDate && rowEntry.time == entryTime
+                 ).length < 1 ) {
                 rows.push( { date : entry.appDate , time : entryTime , appCount : entry.appCount } );
+            }
         });
 
         return rows;
