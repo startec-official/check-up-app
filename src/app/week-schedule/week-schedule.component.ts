@@ -58,13 +58,13 @@ export class WeekScheduleComponent implements OnInit {
 
   onSubmit() {
     let flag = false;
-    // let i = 0;
-    // this.dayForms.forEach( (currentDayForm : FormArray) => {
-    //   if ( currentDayForm.status === 'INVALID' && !this.dayFormDisabled[i++] ) {
-    //     flag = true;
-    //   }
-    // })
-    // this.showErrorMessage = ( flag || !this.personalInfo.valid);
+    let i = 0;
+    this.dayForms.forEach( (currentDayForm : FormArray) => {
+      if ( currentDayForm.status === 'INVALID' && !this.dayFormDisabled[i++] ) {
+        flag = true;
+      }
+    })
+    this.showErrorMessage = ( flag || !this.personalInfo.valid);
 
     if (!flag) {
       this.showReviewMessage = true;
