@@ -21,4 +21,17 @@ export class UtilsService {
     }
     return days;
   }
+
+  getCurrentDayString() {
+    return moment().format("MMMM Do YYYY, dddd");
+  }
+
+  getDateFromAmericanString(amString : string) {
+    const amStringBreak = amString.split('/');
+    const amStringMonth = amStringBreak[0].length < 2 ? `0${amStringBreak[0]}` : amStringBreak[0];
+    const amStringDay = amStringBreak[1].length < 2 ? `0${amStringBreak[1]}` : amStringBreak[1];
+    const amStringYear = amStringBreak[2].length < 4 ? `20${amStringBreak[2]}` : amStringBreak[2];
+    const amStringFinal = `${amStringMonth}/${amStringDay}/${amStringYear}`;    
+    return moment( amStringFinal , 'MM/DD/YYYY' , true ).format("MMMM Do YYYY, dddd");
+  }
 }

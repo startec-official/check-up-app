@@ -76,7 +76,7 @@ export class WeekScheduleComponent implements OnInit {
   }
 
   onConfirmedSubmit() {
-    this.dayForms.forEach( (currentDayForm : FormArray) => {
+    this.dayForms.forEach( (currentDayForm : FormArray) => { // change to pipe function
       currentDayForm.controls.filter( 
         fformControl => fformControl.value.timein !== '' &&
                         fformControl.value.timeout !== ''
@@ -85,8 +85,8 @@ export class WeekScheduleComponent implements OnInit {
       });
     });
     console.log( this.appEntries );
-    this.httpService.postData( AppEntry.simplify(this.appEntries) , () => {
-      this.appEntries = [];
+    this.httpService.postData( AppEntry.simplify(this.appEntries) ).subscribe( (data) => {
+      console.log( data );
       this.isLoading = false;
     });
 

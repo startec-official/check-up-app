@@ -1,0 +1,41 @@
+<!-- The Error Modal -->
+<div class="modal" id="myModal" [ngClass]="{'show': showMessage }">
+    <div class="modal-dialog">
+      <div class="modal-content">
+          
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">{{headerMessage}}</h4>
+          <button type="button" class="close" data-dismiss="modal" (click)="cancelModal()">&times;</button>
+        </div>
+  
+        <!-- Modal body -->
+        <div class="modal-body" [ngSwitch]="modalType">
+          {{bodyMessage}}
+          <span *ngSwitchCase="'info'"
+                class="text-primary"> {{this.dataBody}} </span>
+        </div>
+        <!-- Modal footer -->
+        <div class="modal-footer" [ngSwitch]="modalType">
+            <button type="button"
+                  class="btn btn-success"
+                  data-dismiss="modal"
+                  (click)="cancelModal(); emitConfirmation()"
+                  *ngSwitchCase="'confirm'"
+                  >Confirm</button>
+            <button type="button"
+                  class="btn btn-danger"
+                  data-dismiss="modal"
+                  (click)="cancelModal()"
+                  *ngSwitchCase="'confirm'"
+                  >Cancel</button>
+            <button type="button"
+                  class="btn btn-danger"
+                  data-dismiss="modal"
+                  (click)="cancelModal()"
+                  *ngSwitchCase="'info'"
+                  >Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
