@@ -1,6 +1,6 @@
 import { Component, NgZone, OnInit } from '@angular/core';
 import { faBan , faEnvelope , faIdCard , faCheck, faChevronDown } from "@fortawesome/free-solid-svg-icons";
-import { map } from "rxjs/operators";
+import { first, map } from "rxjs/operators";
 import { Client } from '../utils/client';
 import { HttpAppService } from '../utils/http.app.service';
 import { Modal } from '../utils/modal/modal.model';
@@ -13,6 +13,9 @@ import { UtilsService } from '../utils/utils.service';
               '../../../node_modules/bootstrap/dist/css/bootstrap.min.css']
 })
 export class DashboardComponent implements OnInit {
+
+
+  // TODO: listen to connection lost status
 
   faBan : any;
   faEnvelope : any;
@@ -80,13 +83,18 @@ export class DashboardComponent implements OnInit {
 
   getClientDateTime( date : string ) {
     const today = date;
-    const distincTimes = [ ... new Set(this.clients.map( x => x.time ))];
+    const distincTimes = [ ... new Set(this.clients.map( x => x.time ))]; // Set only takes unique values
     const todayClients = this.clients.filter( client => client.date === today );
     let timesToday = [];
     distincTimes.forEach( time => {
       timesToday.push( todayClients.filter( client => client.time === time ));
     });
-    timesToday = timesToday.filter( time => time.length > 0 ).sort().reverse();
+    timesToday = timesToday.filter( time => time.length > 0 ).sort(
+      (first , second) => {
+        const firstTime : number = parseInt(first[0].time.split(':')[0]);
+        const secondTime : number = parseInt(second[0].time.split(':')[0]);
+        return firstTime - secondTime;
+    });
     return timesToday;
   }
 

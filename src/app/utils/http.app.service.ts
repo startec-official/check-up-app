@@ -15,7 +15,7 @@ export class HttpAppService {
   }
 
   public getData() {
-    return this.http.get( 'http://localhost:3000/display', { 
+    return this.http.get( `http://localhost:3000/display/`, { 
       headers: { 'Content-Type' : 'application/json' } 
     });
   }
