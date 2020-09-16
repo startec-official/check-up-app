@@ -25,7 +25,7 @@ export class ModalComponent implements OnInit {
 
   }
 
-  emitConfirmation() {
+  emitConfirmation() { // TODO: switch to using the modal component
     this.confirm.emit(this.dataBody);
   }
 

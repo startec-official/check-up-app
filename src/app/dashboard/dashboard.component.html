@@ -18,15 +18,15 @@
               <h2 [innerHTML]="today"></h2>
           </div>
       </div>  
-      <hr>
-          <ng-container *ngFor="let time of timesToday; index as i">
+          <ng-container *ngFor="let time of dashboardViewArray; index as i">
+          <hr class="border border-dark">
           <div class="row">
-              <div class="col col-md-2">
+              <div class="col col-md-6">
                   <h2 class="text-primary">{{ time[0].time }}</h2>
               </div>
-              <div class="col col-md-10 text-align-right">
-                <span class="badge badge-secondary mx-3 my-auto">{{time.length}} / {{time.length}}</span>
-                  <button class="btn btn-outline btn-outline-warning btn-sm"><fa-icon [icon]="faBan"></fa-icon></button>
+              <div class="col col-md-6">
+                <button class="btn btn-outline btn-outline-warning btn-sm"
+                        style="float: right;"><fa-icon [icon]="faBan"></fa-icon></button>
               </div>
           </div>
           <div class="row my-2">
@@ -34,6 +34,7 @@
                   <table class="table table-striped">
                       <thead class="thead-light">
                         <tr>
+                          <th scope="col" class="w-10">No.</th>
                           <th scope="col" class="w-40">Name</th>
                           <th scope="col"class="w-25">Reason</th>
                           <th scope="col"class="w-25">Actions</th>
@@ -41,20 +42,23 @@
                       </thead>
                       <tbody>
                         <tr *ngFor="let client of time; index as j">
+                          <td>{{j+1}}</td>
                           <td>{{client.name}}</td>
                           <td>{{client.reason}}</td>
                           <td class="buttons">
-                            <button class="btn btn-outline btn-outline-success"
+                            <button class="btn btn-outline btn-outline-success btn-sm"
                                     style="margin-right: 2em"
                                     (click)="triggerAppCompVerification(client)">
                                     <fa-icon [icon]="faCheck"></fa-icon>
                             </button> 
-                            <button class="btn btn-outline btn-outline-warning"><fa-icon [icon]="faBan"></fa-icon></button> 
-                            <button class="btn btn-outline btn-outline-secondary"
+                            <button class="btn btn-outline btn-outline-warning btn-sm"
+                                    disabled="true"><fa-icon [icon]="faBan"></fa-icon></button> 
+                            <button class="btn btn-outline btn-outline-secondary btn-sm"
                                     (click)="triggerContactInfoMessage(client)">
                                     <fa-icon [icon]="faEnvelope"></fa-icon>
                             </button> 
-                            <button class="btn btn-outline btn-outline-primary"><fa-icon [icon]="faIdCard"></fa-icon></button> 
+                            <button class="btn btn-outline btn-outline-primary btn-sm"
+                                    disabled="true"><fa-icon [icon]="faIdCard"></fa-icon></button> 
                             
                           </td>
                         </tr>
@@ -68,11 +72,14 @@
     <!-- TODO: add more items section here -->
     <div class="row" *ngIf="isDoneLoading">
       <div class="mx-auto">
-        <button class="btn btn-outline-secondary btn-lg" style="border-radius:100%;height: 3em;width:3em;"><fa-icon [icon]="faChevron"></fa-icon></button>
+        <button class="btn btn-outline-secondary btn-lg"
+                style="border-radius:100%;height: 3em;width:3em;"
+                ><fa-icon [icon]="faChevron"></fa-icon>
+        </button>
+        <!-- (click)="testAdd()" -->
       </div>
     </div>
 </div>
-
 <app-modal [modalType]="modal.modalType"
            [showMessage]="modal.showMessage"
            [headerMessage]="modal.headerMessage"

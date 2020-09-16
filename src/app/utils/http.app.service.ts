@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 @Injectable({
@@ -18,5 +18,9 @@ export class HttpAppService {
     return this.http.get( 'http://localhost:3000/display', { 
       headers: { 'Content-Type' : 'application/json' } 
     });
+  }
+
+  public removeEntry( userId : number ) { // TODO: figure out defect in delete method
+   return this.http.get( `http://localhost:3000/remove/${userId}`); 
   }
 }
