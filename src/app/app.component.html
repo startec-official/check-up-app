@@ -1,5 +1,28 @@
 <body>
-  <!-- <app-week-schedule></app-week-schedule> -->
-  <!-- <app-dashboard></app-dashboard> -->
-  <app-unavaiable-page></app-unavaiable-page>
+  <div class="container">
+      <nav class="nav nav-tabs nav-stacked my-3">
+        <ul class="nav nav-tabs nav-justified">
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/unavailable" routerLinkActive="active">Unavailable</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link disabled" routerLink="/schedule" routerLinkActive="active">Schedule</a>
+          </li>
+        </ul>
+      </nav>
+    <div class="row">
+      <div class="col-sm-12">
+        <router-outlet></router-outlet>
+      </div>
+    </div>
+    <!-- <app-week-schedule></app-week-schedule> -->
+    <!-- <app-dashboard></app-dashboard> -->
+    <!-- <app-unavaiable-page></app-unavaiable-page> -->
+  </div>
 </body>

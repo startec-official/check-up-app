@@ -54,7 +54,7 @@ export class UnavaiablePageComponent implements OnInit {
     });
   }
 
-  getToday() : string {
+  getToday() : string { 
     return this.utils.getCurrentDayString();
   }
 
