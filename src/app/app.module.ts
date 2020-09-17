@@ -8,13 +8,15 @@ import { AppComponent } from './app.component';
 import { WeekScheduleComponent } from './week-schedule/week-schedule.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { ModalComponent } from './utils/modal/modal.component';
+import { UnavaiablePageComponent } from './unavaiable-page/unavaiable-page.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     WeekScheduleComponent,
     DashboardComponent,
-    ModalComponent
+    ModalComponent,
+    UnavaiablePageComponent
   ],
   imports: [
     BrowserModule,

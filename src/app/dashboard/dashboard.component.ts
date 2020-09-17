@@ -115,12 +115,8 @@ export class DashboardComponent implements OnInit {
         if (index > -1) {
           this.clients.splice(index, 1)
         }
-        console.log( this.clients );
-        console.log( data );
-        
         this.dashboardViewArray = this.getClientDateTime( this.today );
         this.isDoneLoading = true;
-        console.log( data );
       }
     );
   }

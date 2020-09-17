@@ -20,6 +20,12 @@ export class HttpAppService {
     });
   }
 
+  public getOutDays() {
+    return this.http.get( `http://localhost:3000/display/schedules` , {
+      headers: { 'Content-Type' : 'application/json' }
+    });
+  }
+
   public removeEntry( userId : number ) { // TODO: figure out defect in delete method
    return this.http.get( `http://localhost:3000/remove/${userId}`); 
   }

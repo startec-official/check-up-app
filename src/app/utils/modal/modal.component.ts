@@ -12,7 +12,7 @@ export class ModalComponent implements OnInit {
   @Input() headerMessage : string;
   @Input() bodyMessage : string;
   @Input() dataBody : any;
-
+ 
   @Output() confirm : EventEmitter<any> = new EventEmitter();
   @Output() cancel : EventEmitter<null> = new EventEmitter();
 

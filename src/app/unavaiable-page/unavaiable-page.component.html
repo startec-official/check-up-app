@@ -1,0 +1,68 @@
+<div class="container">
+  <div class="row">
+    <div class="spinner-border text-dark mx-auto my-5" 
+       role="status"
+       style="width:5rem;height:5rem;"
+       *ngIf="isLoading">
+      <span class="sr-only">Loading...</span>
+    </div>
+  </div>
+  <ng-container *ngIf="!isLoading">
+    <div class="row mx-auto">
+      <div class="col-sm-12 text-center">
+          <h2 class="text-secondary"> Hello. Today is </h2>
+          <h1> {{ getToday() }} </h1>
+          <button class="btn btn-outline btn-outline-warning btn-lg mx-auto p-3 m-5"
+                  [ngClass]="{'btn-outline-warning' : !isOutToday[0] , 'btn-outline-dark' : isOutToday[0] }"
+                  [disabled]="isOutToday[0]"
+                  (click)="triggerOut( 0 )">
+                      Out for Today
+          </button>
+      </div>
+  </div>
+  <hr>
+  <div class="row" *ngIf="!isShowingUpcoming">
+      <div class="mx-auto">
+        <button class="btn btn-outline-secondary btn-lg"
+                style="border-radius:100%;height: 3em;width:3em;"
+                (click)="isShowingUpcoming = true">
+                <fa-icon [icon]="faChevron"></fa-icon>
+        </button>
+      </div>
+  </div>
+  <div class="row mx-auto" *ngIf="isShowingUpcoming">
+      <div class="col-sm-12">
+          <h2 class="text-center">Upcoming Days</h2>      
+          <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th scope="col">Date</th>
+                  <th scope="col">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr [ngClass]="{ 'table-warning' : i === 0 }" *ngFor="let day of daySchedules; index as i">
+                  <td>{{day}}</td>
+                  <td>
+                      <button class="btn btn-outline" 
+                              [ngClass]="{'btn-outline-warning' : !isOutToday[i] , 'btn-outline-dark' : isOutToday[i] }"
+                              [disabled]="isOutToday[ i ]"
+                              (click)="triggerOut( i )">
+                          Out
+                      </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+      </div>
+  </div>
+  </ng-container>
+</div>
+
+<app-modal [modalType]="modal.modalType"
+           [showMessage]="modal.showMessage"
+           [headerMessage]="modal.headerMessage"
+           [bodyMessage]="modal.bodyMessage"
+           [dataBody]="modal.inputData"
+           (confirm)="setToOut( modal.inputData )"
+           (cancel)="hideModal()"></app-modal>
