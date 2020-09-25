@@ -12,12 +12,14 @@ import { ModalComponent } from './utils/modal/modal.component';
 import { UnavaiablePageComponent } from './unavaiable-page/unavaiable-page.component';
 import { HomeComponent } from './home/home.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
+import { DebugComponent } from './debug/debug.component';
 
 const appRoutes : Routes = [
   { path : '' , component : HomeComponent },
   { path : 'schedule' , component : WeekScheduleComponent },
   { path : 'dashboard' , component : DashboardComponent },
   { path : 'unavailable' , component : UnavaiablePageComponent },
+  { path : 'debug' , component : DebugComponent },
   { path : '**' , component : PageNotFoundComponent }
  ];
 
@@ -28,7 +30,8 @@ const appRoutes : Routes = [
     DashboardComponent,
     ModalComponent,
     UnavaiablePageComponent,
-    HomeComponent
+    HomeComponent,
+    DebugComponent
   ],
   imports: [
     BrowserModule,

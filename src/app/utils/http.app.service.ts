@@ -29,4 +29,10 @@ export class HttpAppService {
   public removeEntry( userId : number ) { // TODO: figure out defect in delete method
    return this.http.get( `http://localhost:3000/remove/${userId}`); 
   }
+
+  public testWrite( data : any ) {
+    return this.http.post( 'http://localhost:3000/testWrite' , JSON.stringify( data ) , {
+      headers: { 'Content-Type' : 'application/json' }
+    } );
+  }
 }

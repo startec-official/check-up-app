@@ -14,7 +14,6 @@ import { UtilsService } from '../utils/utils.service';
 })
 export class DashboardComponent implements OnInit {
 
-
   // TODO: listen to connection lost status
 
   faBan : any;
