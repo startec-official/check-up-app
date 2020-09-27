@@ -10,7 +10,8 @@ export class HttpAppService {
 
   postData( data : any ) {
     return this.http.post('http://localhost:3000/save',JSON.stringify( data ),{
-      headers: { 'Content-Type' : 'application/json' }
+      headers: { 'Content-Type' : 'application/json' },
+      responseType : 'text'
     });
   }
 
@@ -27,12 +28,15 @@ export class HttpAppService {
   }
 
   public removeEntry( userId : number ) { // TODO: figure out defect in delete method
-   return this.http.get( `http://localhost:3000/remove/${userId}`); 
+   return this.http.get( `http://localhost:3000/remove/${userId}`,{
+     responseType : 'text'
+   }); 
   }
 
   public testWrite( data : any ) {
     return this.http.post( 'http://localhost:3000/testWrite' , JSON.stringify( data ) , {
-      headers: { 'Content-Type' : 'application/json' }
+      headers: { 'Content-Type' : 'application/json' },
+      responseType: 'text'
     } );
   }
 }

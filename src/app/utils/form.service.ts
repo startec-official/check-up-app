@@ -27,7 +27,7 @@ export class FormService {
         timein : new FormControl( (timeindef || '') ,Validators.required),
         timeout : new FormControl( (timeoutdef || '') ,Validators.required),
         appCount : new FormControl( (appCountdef || '') ,Validators.required)
-       })
+       },Validators.required)
     ])
   }
 }

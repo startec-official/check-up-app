@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { UtilsService } from '../utils/utils.service';
 import { FormArray, FormGroup } from '@angular/forms';
 import { AppEntry } from '../utils/app-entry';
@@ -12,7 +12,7 @@ import { FormService } from '../utils/form.service';
               '../../../node_modules/bootstrap/dist/css/bootstrap.min.css'],
 })
 export class WeekScheduleComponent implements OnInit {
-
+  
   daysOfWeek : string[];
   dayFormDisabled : boolean[] = [];
   dayForms : FormArray[] = [];
@@ -28,7 +28,8 @@ export class WeekScheduleComponent implements OnInit {
   
   constructor( _utilsService : UtilsService ,
                private httpService : HttpAppService ,
-               private formService : FormService ) {
+               private formService : FormService,
+               private cd : ChangeDetectorRef ) {
     this.utilsService = _utilsService;
   }
 
@@ -42,6 +43,7 @@ export class WeekScheduleComponent implements OnInit {
       this.dayFormDisabled[i ++] = false;
       this.dayForms.push( this.formService.generateNewSchedEntryForm( day ) );
     });
+    console.log( this.dayFormDisabled );
   }
 
   addGroup( dayForm : FormArray , inputAppDate : string ) {
@@ -54,29 +56,33 @@ export class WeekScheduleComponent implements OnInit {
 
   toggleAway( index : number ) {
     this.dayFormDisabled[index] = !this.dayFormDisabled[index];
+    console.log(this.dayFormDisabled);
+    
   }
 
   onSubmit() {
     let flag = false;
     let i = 0;
+    this.cd.detectChanges();
     this.dayForms.forEach( (currentDayForm : FormArray) => {
-      if ( currentDayForm.status === 'INVALID' && !this.dayFormDisabled[i++] ) {
+      var l = currentDayForm.controls.filter(fformControl => fformControl.status == 'INVALID').length;
+      if ( l > 0 && !this.dayFormDisabled[i++] ) {
+        console.log(`form at index ${i-1}`);
         flag = true;
       }
-    })
-    this.showErrorMessage = ( flag || !this.personalInfo.valid);
-
-    if (!flag) {
-      this.showReviewMessage = true;
-      this.isLoading = true;
+    });
+    if( flag || !this.personalInfo.valid) {
+      this.showErrorMessage = true;
     }
     else {
-      this.showErrorMessage = true;
+      this.showReviewMessage = false;
+      this.isLoading = true;
+      this.onConfirmedSubmit();
     }
   }
 
   onConfirmedSubmit() {
-    this.dayForms.forEach( (currentDayForm : FormArray) => { // change to pipe function
+    this.dayForms.forEach( (currentDayForm : FormArray) => { // TODO: change to pipe function
       currentDayForm.controls.filter( 
         fformControl => fformControl.value.timein !== '' &&
                         fformControl.value.timeout !== ''
@@ -84,12 +90,15 @@ export class WeekScheduleComponent implements OnInit {
         this.appEntries.push( new AppEntry( formControl.value.appDate , formControl.value.appCount , formControl.value.timein , formControl.value.timeout ) ); 
       });
     });
-    console.log( this.appEntries );
+    console.log(AppEntry.simplify(this.appEntries));
     this.httpService.postData( AppEntry.simplify(this.appEntries) ).subscribe( (data) => {
       console.log( data );
       this.isLoading = false;
+      console.log( `isLoading is ${this.isLoading}` );
+    },
+    (error) => {
+      throw error;
     });
-
     this.showReviewMessage = false;
   }
 }
