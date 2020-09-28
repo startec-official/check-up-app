@@ -22,6 +22,10 @@ export class UtilsService {
     return days;
   }
 
+  getCurrentDate() {
+    return moment();
+  }
+
   getCurrentDayString() {
     return moment().format("MMMM Do YYYY, dddd");
   }
@@ -33,5 +37,9 @@ export class UtilsService {
     const amStringYear = amStringBreak[2].length < 4 ? `20${amStringBreak[2]}` : amStringBreak[2];
     const amStringFinal = `${amStringMonth}/${amStringDay}/${amStringYear}`;    
     return moment( amStringFinal , 'MM/DD/YYYY' , true ).format("MMMM Do YYYY, dddd");
+  }
+
+  getDateFromFormat( dateString : string , format : string ) {
+    return moment( dateString , format , true );
   }
 }

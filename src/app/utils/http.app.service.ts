@@ -8,33 +8,33 @@ export class HttpAppService {
 
   constructor( private http : HttpClient ) { }
 
-  postData( data : any ) {
-    return this.http.post('http://localhost:3000/save',JSON.stringify( data ),{
+  postScheduleData( data : any ) {
+    return this.http.post('http://localhost:3000/schedule/overwriteSaveTo',JSON.stringify( data ),{
       headers: { 'Content-Type' : 'application/json' },
       responseType : 'text'
     });
   }
 
-  public getData() {
-    return this.http.get( `http://localhost:3000/display/`, { 
+  public getClientData() {
+    return this.http.get( `http://localhost:3000/clients/displayAll`, { 
       headers: { 'Content-Type' : 'application/json' } 
     });
   }
 
   public getOutDays() {
-    return this.http.get( `http://localhost:3000/display/schedules` , {
+    return this.http.get( `http://localhost:3000/schedule/selectDistinct` , {
       headers: { 'Content-Type' : 'application/json' }
     });
   }
 
-  public removeEntry( userId : number ) { // TODO: figure out defect in delete method
-   return this.http.get( `http://localhost:3000/remove/${userId}`,{
+  public removeClient( userId : number ) { // TODO: figure out defect in delete method
+   return this.http.delete( `http://localhost:3000/clients/remove/${userId}`,{
      responseType : 'text'
    }); 
   }
 
   public testWrite( data : any ) {
-    return this.http.post( 'http://localhost:3000/testWrite' , JSON.stringify( data ) , {
+    return this.http.post( 'http://localhost:3000/clients/testWrite' , JSON.stringify( data ) , {
       headers: { 'Content-Type' : 'application/json' },
       responseType: 'text'
     } );

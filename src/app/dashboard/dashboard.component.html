@@ -14,15 +14,32 @@
     <ng-container *ngIf="isDoneLoading">
       <div class="mx-auto">
         <div class="row">
-          <div class="col-md-12">
-              <h2 [innerHTML]="today"></h2>
+          <div class="col-md-7">
+              <h2 [innerHTML]="distinctDates[currentDateIndex].format('MMMM Do YYYY, dddd')"></h2>
+          </div>
+          <div class="col-md-5">
+            <div class="float-right">
+              <button class="btn btn-outline-secondary btn-sm mx-3"
+                      style="border-radius:100%;height: 3em;width:3em;"
+                      [disabled]="leftDisabled"
+                      (click)="previousDate()">
+                      <fa-icon [icon]="faChevronLeft"></fa-icon>
+              </button>
+              <button class="btn btn-outline-secondary btn-sm mx-3"
+                      style="border-radius:100%;height: 3em;width:3em;"
+                      [disabled]="rightDisabled"
+                      (click)="nextDate()">
+                      <fa-icon [icon]="faChevronRight"></fa-icon>
+              </button>
+              <!-- (click)="testAdd()" -->
+            </div>
           </div>
       </div>  
-          <ng-container *ngFor="let time of dashboardViewArray; index as i">
+          <ng-container *ngFor="let distinctTime of distinctTimesForClientsOfDay; index as i">
           <hr class="border border-dark">
           <div class="row">
               <div class="col col-md-6">
-                  <h2 class="text-primary">{{ time[0].time }}</h2>
+                  <h2 class="text-primary">{{ distinctTime[0].time }}</h2>
               </div>
               <div class="col col-md-6">
                 <button class="btn btn-outline btn-outline-warning btn-sm"
@@ -44,7 +61,7 @@
                         </tr>
                       </thead>
                       <tbody>
-                        <tr *ngFor="let client of time; index as j">
+                        <tr *ngFor="let client of distinctTime; index as j">
                           <td>{{j+1}}</td>
                           <td>{{client.name}}</td>
                           <td>{{client.reason}}</td>
@@ -77,8 +94,8 @@
       <div class="mx-auto">
         <button class="btn btn-outline-secondary btn-lg"
                 style="border-radius:100%;height: 3em;width:3em;"
-                disabled="true">
-                <fa-icon [icon]="faChevron"></fa-icon>
+                (click)="refresh()">
+                <fa-icon [icon]="faSync"></fa-icon>
         </button>
         <!-- (click)="testAdd()" -->
       </div>

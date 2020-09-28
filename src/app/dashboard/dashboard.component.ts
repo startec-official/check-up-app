@@ -1,6 +1,8 @@
 import { Component, NgZone, OnInit } from '@angular/core';
-import { faBan , faEnvelope , faIdCard , faCheck, faChevronDown } from "@fortawesome/free-solid-svg-icons";
-import { first, map } from "rxjs/operators";
+import { faBan , faEnvelope , faIdCard , faCheck , faChevronLeft , faChevronRight , faSync } from "@fortawesome/free-solid-svg-icons";
+import * as moment from 'moment';
+import { Moment } from 'moment';
+import { map } from "rxjs/operators";
 import { Client } from '../utils/client';
 import { HttpAppService } from '../utils/http.app.service';
 import { Modal } from '../utils/modal/modal.model';
@@ -20,14 +22,18 @@ export class DashboardComponent implements OnInit {
   faEnvelope : any;
   faCheck : any;
   faIdCard : any;
-  faChevron : any;
+  faChevronLeft : any;
+  faChevronRight : any;
+  faSync : any;
 
-  clients : Client[] = [];
-
-  dashboardViewArray = [];
-  today : string;
+  allClients : Client[] = [];
+  distinctTimesForClientsOfDay = [];
+  distinctDates : Moment[] = [];
 
   modal : Modal;
+  leftDisabled : boolean = true;
+  rightDisabled : boolean = false;
+  currentDateIndex :number = 0;
 
   isDoneLoading : boolean = false;
 
@@ -35,8 +41,9 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     
-    this.today = this.getCurrentDate();
     this.fetchClients();
+    this.rightDisabled = this.distinctDates.length > 1;
+    this.currentDateIndex = 0;
     this.modal = new Modal( false , '' , '' , '' , null );
     this.setIcons();
   }
@@ -46,12 +53,14 @@ export class DashboardComponent implements OnInit {
     this.faEnvelope = faEnvelope;
     this.faIdCard = faIdCard;
     this.faCheck = faCheck;
-    this.faChevron = faChevronDown;
+    this.faChevronLeft = faChevronLeft;
+    this.faChevronRight = faChevronRight;
+    this.faSync = faSync;
   }
 
   fetchClients() {
     this.isDoneLoading = false;
-    this.httpAppService.getData().pipe(map( data => {
+    this.httpAppService.getClientData().pipe(map( data => {
       let clientsList = [];
       for ( let key in data ) {
         clientsList.push( data[key] );
@@ -60,41 +69,83 @@ export class DashboardComponent implements OnInit {
       })).subscribe( ( clientList ) => {
 
         clientList.forEach( (clientEl) => {
-          this.clients.push( new Client(
+          this.allClients.push( new Client(
             clientEl.client_id,
             clientEl.client_name,
-            this.utils.getDateFromAmericanString(clientEl.client_day),
+            this.utils.getDateFromFormat(clientEl.client_day,'MM/DD/YYYY'),
             clientEl.client_time,
             parseInt(clientEl.client_order),
             clientEl.client_number,
             clientEl.client_reason
           ));
         });
-        this.clients.sort( (a,b) => {return a.userId - b.userId} );
-        this.dashboardViewArray = this.getClientDateTime( this.today );
+        this.allClients.sort( (a,b) => {return a.userId - b.userId} );
+        this.distinctDates = this.getDistinctDatesFromNow( this.allClients );
+        this.updateView();
         this.isDoneLoading = true;
       });
   }
 
-  getCurrentDate() {
-    return this.utils.getCurrentDayString();
+  updateView() {
+    this.distinctTimesForClientsOfDay = this.getClientsForDateSepByTime( this.distinctDates[ this.currentDateIndex ] );
   }
 
-  getClientDateTime( date : string ) {
-    const today = date;
-    const distincTimes = [ ... new Set(this.clients.map( x => x.time ))]; // Set only takes unique values
-    const todayClients = this.clients.filter( client => client.date === today );
-    let timesToday = [];
-    distincTimes.forEach( time => {
-      timesToday.push( todayClients.filter( client => client.time === time ));
+  getClientsForDate( inputDate : Moment ) {
+    return this.allClients.filter( ( client ) => client.date.isSame(inputDate,'date') );
+  }
+
+  getDistinctDatesFromNow( inputClients : Client[] ) {
+    const distinctDates = [ ...new Set( inputClients.map( (client) => client.date.format() ) )];
+    var currentDate = this.utils.getCurrentDate();
+    return distinctDates.map( ( distinctDate : string ) => moment( distinctDate ) ).sort( (a,b) => a.isSameOrAfter(b,'date') ? 1 : -1).filter( (date) => date.isSameOrAfter( currentDate , 'date' ) );
+    
+  }
+
+  getClientsForDateSepByTime( inputDate : Moment ) {
+    var differentDateTimes = [];
+    var clientsForDate = this.getClientsForDate( inputDate );
+    const distinctTimes = [ ... new Set( clientsForDate.map( (client) => client.time ))];
+    distinctTimes.sort( (a,b) => moment(a.split('-')[0],'hh:mm',true).isSameOrAfter( moment(b.split('-')[0],'hh:mm',true) , 'hour' ) ? 1 : -1 );
+    console.log( distinctTimes );
+    distinctTimes.forEach( ( uniqueTime ) => {
+      differentDateTimes.push( clientsForDate.filter( (date) => date.time == uniqueTime ).sort( (a,b) => a.order - b.order ) );
     });
-    timesToday = timesToday.filter( time => time.length > 0 ).sort(
-      (first , second) => {
-        const firstTime : number = parseInt(first[0].time.split(':')[0]);
-        const secondTime : number = parseInt(second[0].time.split(':')[0]);
-        return firstTime - secondTime;
-    });
-    return timesToday;
+    return differentDateTimes;
+  }
+
+  nextDate() { 
+    this.currentDateIndex += this.currentDateIndex < this.distinctDates.length -1 ? 1 : 0;
+    console.log( this.currentDateIndex );
+    
+    if( this.currentDateIndex == this.distinctDates.length - 1 ) {
+      this.leftDisabled = false;
+      this.rightDisabled = true;
+    }
+    else {
+      this.leftDisabled = false;
+      this.rightDisabled = false;
+    }
+    this.updateView();
+  }
+
+  previousDate() {
+    this.currentDateIndex -= this.currentDateIndex > 0 ? 1 : 0;
+    console.log( this.currentDateIndex );
+    
+    if( this.currentDateIndex == 0 ) {
+      this.leftDisabled = true;
+      this.rightDisabled = false;
+    } else {
+      this.leftDisabled = false;
+      this.rightDisabled = false;
+    }
+    this.updateView();
+  }
+
+  refresh() {
+    this.allClients = [];
+    this.fetchClients();
+    this.updateView();
   }
 
   triggerAppCompVerification( client : Client ) {
@@ -108,13 +159,13 @@ export class DashboardComponent implements OnInit {
   modalConfirm( event ) { // TODO: delete entry from DB once this is done
     const client = <Client> event;
     this.isDoneLoading = false; // TODO: fix issue of process not completed
-    this.httpAppService.removeEntry( client.userId ).subscribe(
+    this.httpAppService.removeClient( client.userId ).subscribe(
       (data) => {
-        const index : number = this.clients.indexOf(client, 0);
+        const index : number = this.allClients.indexOf(client, 0);
         if (index > -1) {
-          this.clients.splice(index, 1)
+          this.allClients.splice(index, 1)
         }
-        this.dashboardViewArray = this.getClientDateTime( this.today );
+        this.updateView();
         this.isDoneLoading = true;
       }
     );

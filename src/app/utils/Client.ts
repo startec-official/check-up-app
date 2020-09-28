@@ -1,7 +1,9 @@
+import { Moment } from 'moment';
+
 interface ClientInterface {
     userId : number;
     name : string;
-    date : string;
+    date : Moment;
     time : string;
     order : number;
     contactNumber : string;
@@ -11,13 +13,13 @@ interface ClientInterface {
 export class Client implements ClientInterface {
     userId : number;
     name: string;
-    date: string;
+    date: Moment;
     time: string;
     order : number;
     contactNumber : string;
     reason? : string;
 
-    constructor( _userId : number , _name : string , _date : string , _time : string , _order : number, _contactNumber : string , _reason? : string ) {
+    constructor( _userId : number , _name : string , _date : Moment , _time : string , _order : number, _contactNumber : string , _reason? : string ) {
         this.userId = _userId;
         this.name = _name;
         this.date = _date;

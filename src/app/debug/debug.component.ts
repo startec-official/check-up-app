@@ -16,7 +16,7 @@ export class DebugComponent implements OnInit {
   }
 
   testWrite() {
-    this.httpService.testWrite( { message : 'Hi! I hope you have a nice day today!'} ).subscribe( (data) => {
+    this.httpService.testWrite( {number : '+639663761426' , message : 'Hi! This is to inform you that you are awesome!'} ).subscribe( (data) => {
       console.log(data);
       this.isSent = true;
     });

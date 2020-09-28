@@ -9,10 +9,10 @@ import { FormService } from '../utils/form.service';
   selector: 'app-week-schedule',
   templateUrl: './week-schedule.component.html',
   styleUrls: ['./week-schedule.component.css',
-              '../../../node_modules/bootstrap/dist/css/bootstrap.min.css'],
+              '../../../node_modules/bootstrap/dist/css/bootstrap.min.css']
 })
 export class WeekScheduleComponent implements OnInit {
-  
+
   daysOfWeek : string[];
   dayFormDisabled : boolean[] = [];
   dayForms : FormArray[] = [];
@@ -23,14 +23,11 @@ export class WeekScheduleComponent implements OnInit {
   isLoading : boolean = false;
   
   appEntries : AppEntry[] = [];
-
-  private utilsService : UtilsService;
   
-  constructor( _utilsService : UtilsService ,
+  constructor( private utilsService : UtilsService ,
                private httpService : HttpAppService ,
                private formService : FormService,
                private cd : ChangeDetectorRef ) {
-    this.utilsService = _utilsService;
   }
 
   ngOnInit(): void {
@@ -43,7 +40,6 @@ export class WeekScheduleComponent implements OnInit {
       this.dayFormDisabled[i ++] = false;
       this.dayForms.push( this.formService.generateNewSchedEntryForm( day ) );
     });
-    console.log( this.dayFormDisabled );
   }
 
   addGroup( dayForm : FormArray , inputAppDate : string ) {
@@ -56,8 +52,6 @@ export class WeekScheduleComponent implements OnInit {
 
   toggleAway( index : number ) {
     this.dayFormDisabled[index] = !this.dayFormDisabled[index];
-    console.log(this.dayFormDisabled);
-    
   }
 
   onSubmit() {
@@ -65,9 +59,8 @@ export class WeekScheduleComponent implements OnInit {
     let i = 0;
     this.cd.detectChanges();
     this.dayForms.forEach( (currentDayForm : FormArray) => {
-      var l = currentDayForm.controls.filter(fformControl => fformControl.status == 'INVALID').length;
+      var l = currentDayForm.controls.filter(fformControl => fformControl.status == 'INVALID').length; // workaround for the lack of namespaces in the dynamic addition of forms
       if ( l > 0 && !this.dayFormDisabled[i++] ) {
-        console.log(`form at index ${i-1}`);
         flag = true;
       }
     });
@@ -91,10 +84,9 @@ export class WeekScheduleComponent implements OnInit {
       });
     });
     console.log(AppEntry.simplify(this.appEntries));
-    this.httpService.postData( AppEntry.simplify(this.appEntries) ).subscribe( (data) => {
+    this.httpService.postScheduleData( AppEntry.simplify(this.appEntries) ).subscribe( (data) => {
       console.log( data );
       this.isLoading = false;
-      console.log( `isLoading is ${this.isLoading}` );
     },
     (error) => {
       throw error;
