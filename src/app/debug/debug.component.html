@@ -1,8 +1,27 @@
-<!-- section below for testing only -->
-<div class="row">
-    <div class="col-sm-12 text-center">
-        <button class="btn btn-primary btn-lg" (click)="testWrite()" [disabled]="isSent">
-            Write a nice message
-        </button>
-    </div>
-</div>
+<app-mod-modal>
+    <ng-template appModalHeader let-closeModal>
+        <h4>Header Numbah 1</h4>
+        <button type="button" class="close" data-dismiss="modal" (click)="closeModal()">&times;</button>
+    </ng-template>
+    <ng-template appModalBody>
+        <p>China Numbah 1</p>
+    </ng-template>
+    <ng-template appModalFooter let-closeModal>
+        <button type="button" class="btn btn-danger" data-dismiss="modal" (click)="closeModal()">Close</button>
+    </ng-template>
+</app-mod-modal>
+
+<app-mod-modal>
+    <ng-template appModalHeader let-closeModal>
+        <h4>Header Numbah 2</h4>
+        <button type="button" class="close" data-dismiss="modal" (click)="closeModal()">&times;</button>
+    </ng-template>
+    <ng-template appModalBody>
+        <p>China Numbah 2</p>
+    </ng-template>
+    <ng-template appModalFooter let-closeModal>
+        <button type="button" class="btn btn-danger" data-dismiss="modal" (click)="closeModal()">Close</button>
+    </ng-template>
+</app-mod-modal>
+
+<button class="btn btn-primary">Clickable</button>

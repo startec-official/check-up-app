@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, OnInit } from '@angular/core';
 import { UtilsService } from '../utils/utils.service';
 import { FormArray, FormGroup } from '@angular/forms';
 import { AppEntry } from '../utils/app-entry';
@@ -18,11 +18,14 @@ export class WeekScheduleComponent implements OnInit {
   dayForms : FormArray[] = [];
 
   personalInfo : FormGroup;
-  showErrorMessage : boolean = false;
-  showReviewMessage : boolean = false;
   isLoading : boolean = false;
   
   appEntries : AppEntry[] = [];
+
+  toggleInputErrorModal : EventEmitter<any>;
+  toggleReviewModal : EventEmitter<any>;
+  toggleLoadingModal : EventEmitter<any>;
+  toggleSuccessModal : EventEmitter<any>;
   
   constructor( private utilsService : UtilsService ,
                private httpService : HttpAppService ,
@@ -40,6 +43,10 @@ export class WeekScheduleComponent implements OnInit {
       this.dayFormDisabled[i ++] = false;
       this.dayForms.push( this.formService.generateNewSchedEntryForm( day ) );
     });
+    this.toggleInputErrorModal = new EventEmitter();
+    this.toggleReviewModal = new EventEmitter();
+    this.toggleLoadingModal = new EventEmitter();
+    this.toggleSuccessModal = new EventEmitter();
   }
 
   addGroup( dayForm : FormArray , inputAppDate : string ) {
@@ -64,17 +71,21 @@ export class WeekScheduleComponent implements OnInit {
         flag = true;
       }
     });
-    if( flag || !this.personalInfo.valid) {
-      this.showErrorMessage = true;
-    }
-    else {
-      this.showReviewMessage = false;
-      this.isLoading = true;
-      this.onConfirmedSubmit();
-    }
+    // if( flag || !this.personalInfo.valid) {
+    //   this.toggleInputErrorModal.emit('show');
+    // }
+    // else {
+    //   this.toggleReviewModal.emit('show');
+    //   this.isLoading = true;
+    //   this.onConfirmedSubmit();
+    // }
+
+    this.toggleReviewModal.emit('show');
+    this.isLoading = true;
   }
 
   onConfirmedSubmit() {
+    this.toggleLoadingModal.emit('show');
     this.dayForms.forEach( (currentDayForm : FormArray) => { // TODO: change to pipe function
       currentDayForm.controls.filter( 
         fformControl => fformControl.value.timein !== '' &&
@@ -87,10 +98,11 @@ export class WeekScheduleComponent implements OnInit {
     this.httpService.postScheduleData( AppEntry.simplify(this.appEntries) ).subscribe( (data) => {
       console.log( data );
       this.isLoading = false;
+      this.toggleLoadingModal.emit('hide');
+      this.toggleSuccessModal.emit('show');
     },
     (error) => {
       throw error;
     });
-    this.showReviewMessage = false;
   }
 }

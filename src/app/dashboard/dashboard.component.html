@@ -101,10 +101,28 @@
       </div>
     </div>
 </div>
-<app-modal [modalType]="modal.modalType"
-           [showMessage]="modal.showMessage"
-           [headerMessage]="modal.headerMessage"
-           [bodyMessage]="modal.bodyMessage"
-           [dataBody]="modal.inputData"
-           (confirm)="modalConfirm($event)"
-           (cancel)="hideModal()"></app-modal>
+
+<app-mod-modal [visibilityEventEmitter]="toggleConfirmEventEmitter">
+  <ng-template appModalHeader>
+    <h4>Confirm Complete?</h4>
+  </ng-template>
+  <ng-template appModalBody>
+    <p>Are you sure your appointment is done?</p>
+  </ng-template>
+  <ng-template appModalFooter let-closeModal>
+    <button class="btn btn-success mx-1" (click)="removeClient(currentClientToRemove);closeModal()">Confirm</button>
+    <button class="btn btn-danger mx-1" (click)="closeModal()">Cancel</button>
+  </ng-template>
+</app-mod-modal>
+
+<app-mod-modal [visibilityEventEmitter]="toggleShowInfoEventEmitter">
+  <ng-template appModalHeader>
+    <h4>Contact Info</h4>
+  </ng-template>
+  <ng-template appModalBody>
+    <b>Contact Number: </b> {{this.currentClientToCheckInfo.contactNumber}}
+  </ng-template>
+  <ng-template appModalFooter let-closeModal>
+    <button class="btn btn-danger mx-1" (click)="closeModal()">Cancel</button>
+  </ng-template>
+</app-mod-modal>

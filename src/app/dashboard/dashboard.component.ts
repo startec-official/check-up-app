@@ -1,11 +1,11 @@
-import { Component, NgZone, OnInit } from '@angular/core';
+import { Component, ElementRef, EventEmitter, NgZone, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { faBan , faEnvelope , faIdCard , faCheck , faChevronLeft , faChevronRight , faSync } from "@fortawesome/free-solid-svg-icons";
 import * as moment from 'moment';
 import { Moment } from 'moment';
 import { map } from "rxjs/operators";
+import { ModModalComponent } from '../mod-modal/mod-modal.component';
 import { Client } from '../utils/client';
 import { HttpAppService } from '../utils/http.app.service';
-import { Modal } from '../utils/modal/modal.model';
 import { UtilsService } from '../utils/utils.service';
 
 @Component({
@@ -15,7 +15,6 @@ import { UtilsService } from '../utils/utils.service';
               '../../../node_modules/bootstrap/dist/css/bootstrap.min.css']
 })
 export class DashboardComponent implements OnInit {
-
   // TODO: listen to connection lost status
 
   faBan : any;
@@ -26,16 +25,20 @@ export class DashboardComponent implements OnInit {
   faChevronRight : any;
   faSync : any;
 
-  allClients : Client[] = [];
+  private allClients : Client[] = [];
   distinctTimesForClientsOfDay = [];
   distinctDates : Moment[] = [];
 
-  modal : Modal;
   leftDisabled : boolean = true;
   rightDisabled : boolean = false;
   currentDateIndex :number = 0;
 
   isDoneLoading : boolean = false;
+  toggleConfirmEventEmitter : EventEmitter<any>;
+  toggleShowInfoEventEmitter : EventEmitter<any>;
+
+  currentClientToRemove : Client;
+  currentClientToCheckInfo : Client;
 
   constructor( private utils : UtilsService , private httpAppService : HttpAppService , private ngZone : NgZone ) { }
 
@@ -44,7 +47,9 @@ export class DashboardComponent implements OnInit {
     this.fetchClients();
     this.rightDisabled = this.distinctDates.length > 1;
     this.currentDateIndex = 0;
-    this.modal = new Modal( false , '' , '' , '' , null );
+    this.toggleConfirmEventEmitter = new EventEmitter();
+    this.toggleShowInfoEventEmitter = new EventEmitter();
+    this.currentClientToCheckInfo = new Client(0,'',this.utils.getCurrentDate(),'',0,'','');
     this.setIcons();
   }
   
@@ -145,19 +150,23 @@ export class DashboardComponent implements OnInit {
   refresh() {
     this.allClients = [];
     this.fetchClients();
+    this.currentDateIndex = 0;
+    this.leftDisabled = true;
+    this.rightDisabled = false;
     this.updateView();
   }
 
   triggerAppCompVerification( client : Client ) {
-    this.modal.setModal( true , 'confirm' , 'Confirm Complete' , 'Are you sure your appointment is done?' , client );
+    this.toggleConfirmEventEmitter.emit('show');
+    this.currentClientToRemove = client;
   }
 
-  triggerContactInfoMessage(   client : Client ) {
-      this.modal.setModal( true, 'info' , 'Contact info' , 'Dial the following number: ' , client.contactNumber );
+  triggerContactInfoMessage( client : Client ) {
+    this.toggleShowInfoEventEmitter.emit('show');
+    this.currentClientToCheckInfo = client;
   }
 
-  modalConfirm( event ) { // TODO: delete entry from DB once this is done
-    const client = <Client> event;
+  removeClient( client : Client ) { // TODO: delete entry from DB once this is done
     this.isDoneLoading = false; // TODO: fix issue of process not completed
     this.httpAppService.removeClient( client.userId ).subscribe(
       (data) => {
@@ -169,10 +178,6 @@ export class DashboardComponent implements OnInit {
         this.isDoneLoading = true;
       }
     );
-  }
-
-  hideModal() {
-    this.modal.showMessage = false;
   }
 
   // testAdd() { // TODO: remove test add once done

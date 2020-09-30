@@ -8,11 +8,14 @@ import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { AppComponent } from './app.component';
 import { WeekScheduleComponent } from './week-schedule/week-schedule.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
-import { ModalComponent } from './utils/modal/modal.component';
 import { UnavaiablePageComponent } from './unavaiable-page/unavaiable-page.component';
 import { HomeComponent } from './home/home.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { DebugComponent } from './debug/debug.component';
+import { ModModalComponent } from './mod-modal/mod-modal.component';
+import { ModalHeaderDirective } from './modal-header.directive';
+import { ModalBodyDirective } from './modal-body.directive';
+import { ModalFooterDirective } from './modal-footer.directive';
 
 const appRoutes : Routes = [
   { path : '' , component : HomeComponent },
@@ -28,10 +31,13 @@ const appRoutes : Routes = [
     AppComponent,
     WeekScheduleComponent,
     DashboardComponent,
-    ModalComponent,
     UnavaiablePageComponent,
     HomeComponent,
-    DebugComponent
+    DebugComponent,
+    ModModalComponent,
+    ModalHeaderDirective,
+    ModalBodyDirective,
+    ModalFooterDirective,
   ],
   imports: [
     BrowserModule,

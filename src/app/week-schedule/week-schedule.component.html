@@ -113,7 +113,6 @@
                     type="button"
                     (click)="onSubmit()"
                     [disabled]="isLoading">
-                    <span class="spinner-border spinner-border-lg" role="status" aria-hidden="true" *ngIf="isLoading"></span>
                     Submit
                 </button>
             </div>
@@ -122,52 +121,51 @@
     </div>
 </div>
 <!-- The Review Modal -->
-<div class="modal" id="myModal" [ngClass]="{'show': showReviewMessage }">
-    <div class="modal-dialog">
-      <div class="modal-content">
-          
-        <!-- Modal Header -->
-        <div class="modal-header">
-          <h4 class="modal-title">Review Data</h4>
-          <button type="button" class="close" data-dismiss="modal" (click)="showReviewMessage = false; isLoading = false">&times;</button>
-        </div>
-  
-        <!-- Modal body -->
-        <div class="modal-body">
-          Are you sure you want to pass your schedule?
-        </div>
-        
-        <!-- Modal footer -->
-        <div class="modal-footer">
-            <button type="button" class="btn btn-success" data-dismiss="modal" (click)="onConfirmedSubmit()">Confirm</button>
-          <button type="button" class="btn btn-danger" data-dismiss="modal" (click)="showReviewMessage = false; isLoading = false">Close</button>
-        </div>
-  
-      </div>
-    </div>
-  </div>
+<app-mod-modal [visibilityEventEmitter]="toggleReviewModal">
+    <ng-template appModalHeader>
+        <h4>Review Input</h4>
+    </ng-template>
+    <ng-template appModalBody>
+        Are you sure you want to submit your schedule for the week? This action cannot be undone;
+    </ng-template>
+    <ng-template appModalFooter let-closeModal>
+        <button type="button" class="btn btn-success mx-1" data-dismiss="modal" (click)="onConfirmedSubmit(); closeModal()">Confirm</button>
+        <button type="button" class="btn btn-danger mx-1" data-dismiss="modal" (click)="closeModal()">Close</button>
+    </ng-template>
+</app-mod-modal>
 
-<!-- The Error Modal -->
-<div class="modal" id="myModal" [ngClass]="{'show':showErrorMessage }">
-    <div class="modal-dialog">
-      <div class="modal-content">
-          
-        <!-- Modal Header -->
-        <div class="modal-header">
-          <h4 class="modal-title">Invalid Input</h4>
-          <button type="button" class="close" data-dismiss="modal" (click)="showErrorMessage = false">&times;</button>
-        </div>
+<app-mod-modal [visibilityEventEmitter]="toggleInputErrorModal">
+    <ng-template appModalHeader>
+        <h4>Invalid Input</h4>
+    </ng-template>
+    <ng-template appModalBody>
+        Please check that all field have valid inputs.
+    </ng-template>
+</app-mod-modal>
+
+<app-mod-modal [visibilityEventEmitter]="toggleLoadingModal">
+    <ng-template appModalHeader>
+      <h4>Please Wait</h4>
+    </ng-template>
+    <ng-template appModalBody>
+      <p><b>Waiting for the process to complete.</b></p>
+      <p>Do not close this window or disconnect from the internet while this is open.</p>
+      <p>This window will automatically close when done.</p>
   
-        <!-- Modal body -->
-        <div class="modal-body">
-          Please check that all field have valid inputs.
-        </div>
-        
-        <!-- Modal footer -->
-        <div class="modal-footer">
-          <button type="button" class="btn btn-danger" data-dismiss="modal" (click)="showErrorMessage = false">Close</button>
-        </div>
-  
-      </div>
-    </div>
-  </div>
+    </ng-template>
+    <ng-template appModalFooter>
+      <div class="spinner-grow spinner-grow-sm mx-1 text-light"></div><div class="spinner-grow spinner-grow-sm mx-1 text-warning"></div><div class="spinner-grow spinner-grow-sm mx-1 text-dark"></div>
+    </ng-template>
+  </app-mod-modal>
+
+  <app-mod-modal [visibilityEventEmitter]="toggleSuccessModal">
+      <ng-template appModalHeader>
+          <h4>You're all Set up!</h4>
+      </ng-template>
+      <ng-template appModalBody>
+          <p>Thanks for registering for the week. Press the button below to be taken back to home</p>
+      </ng-template>
+      <ng-template appModalFooter>
+          <button class="btn btn-primary" routerLink="/">Home</button>
+      </ng-template>
+  </app-mod-modal>

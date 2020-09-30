@@ -59,10 +59,30 @@
   </ng-container>
 </div>
 
-<app-modal [modalType]="modal.modalType"
-           [showMessage]="modal.showMessage"
-           [headerMessage]="modal.headerMessage"
-           [bodyMessage]="modal.bodyMessage"
-           [dataBody]="modal.inputData"
-           (confirm)="setToOut( modal.inputData )"
-           (cancel)="hideModal()"></app-modal>
+<app-mod-modal [visibilityEventEmitter]="toggleConfirmEventEmitter">
+  <ng-template appModalHeader>
+    <h4>Confirm Out?</h4>
+  </ng-template>
+  <ng-template appModalBody>
+    Are you sure you are out for today?
+  </ng-template>
+  <ng-template appModalFooter let-closeModal>
+    <button class="btn btn-success mx-1" (click)="setToOut( deleteIndex );closeModal()">Confirm Out</button>
+    <button class="btn btn-danger mx-1" (click)="closeModal()">Cancel</button>
+  </ng-template>
+</app-mod-modal>
+
+<app-mod-modal [visibilityEventEmitter]="toggleLoadingEventEmitter">
+  <ng-template appModalHeader>
+    <h4>Please Wait</h4>
+  </ng-template>
+  <ng-template appModalBody>
+    <p><b>Waiting for the process to complete.</b></p>
+    <p>Do not close this window or disconnect from the internet while this is open.</p>
+    <p>This window will automatically close when done.</p>
+
+  </ng-template>
+  <ng-template appModalFooter>
+    <div class="spinner-grow spinner-grow-sm mx-1 text-light"></div><div class="spinner-grow spinner-grow-sm mx-1 text-warning"></div><div class="spinner-grow spinner-grow-sm mx-1 text-dark"></div>
+  </ng-template>
+</app-mod-modal>

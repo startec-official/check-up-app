@@ -26,6 +26,10 @@ export class UtilsService {
     return moment();
   }
 
+  getCurrentDateMidnight() {
+    return moment(moment().format('MM/DD/YY'),'MM/DD/YY',true);
+  }
+
   getCurrentDayString() {
     return moment().format("MMMM Do YYYY, dddd");
   }

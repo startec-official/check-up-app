@@ -1,7 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit } from '@angular/core';
 import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import { HttpAppService } from '../utils/http.app.service';
-import { Modal } from '../utils/modal/modal.model';
 import { UtilsService } from '../utils/utils.service';
 import { map } from "rxjs/operators";
 
@@ -14,12 +13,14 @@ import { map } from "rxjs/operators";
 export class UnavaiablePageComponent implements OnInit {  
 
   faChevron : any;
-  modal : Modal;
 
   daySchedules : string[];
   isShowingUpcoming : boolean = false;
   isOutToday : boolean[] = [];
   isLoading : boolean = true;
+  deleteIndex : number;
+  toggleConfirmEventEmitter : EventEmitter<any>;
+  toggleLoadingEventEmitter : EventEmitter<any>;
 
   constructor( private utils : UtilsService , private http : HttpAppService ) { }
 
@@ -32,7 +33,8 @@ export class UnavaiablePageComponent implements OnInit {
       this.isOutToday.push( true );
     });
     this.initDayOutValues();
-    this.modal = new Modal(false,'','','','');
+    this.toggleConfirmEventEmitter = new EventEmitter();
+    this.toggleLoadingEventEmitter = new EventEmitter();
   }
 
   initDayOutValues() {
@@ -59,20 +61,12 @@ export class UnavaiablePageComponent implements OnInit {
   }
 
   triggerOut( index : number ) {
-    this.modal.setModal( true , 'confirm' , 'Confirm Out?' , 'Are you sure you are out for today?' , index );
+    this.deleteIndex = index;
+    this.toggleConfirmEventEmitter.emit('show');
   }
 
   setToOut( index : number ) { // TODO: modify database
-    this.isOutToday[ index ] = true;
-    
+    this.isOutToday[ index ] = true; 
+    this.toggleLoadingEventEmitter.emit('show');
   }
-
-  startLoadingModal() {
-    this.modal.setModal( true , 'loading' , 'Deleting Entry' , 'Please wait while the process finishes...' , '' );
-  }
-
-  hideModal() {
-    this.modal.showMessage = false;
-  }
-
 }
