@@ -11,7 +11,15 @@
         <span class="sr-only">Loading...</span>
       </div>
     </div>
-    <ng-container *ngIf="isDoneLoading">
+    <ng-container *ngIf="isEmpty">
+      <div class="row">
+        <div class="col-sm-12 text-center">
+          <h4 class="text-secondary p-5">Appointments will appear here. Currently there are none.</h4>
+          <p class="text-muted">You can refresh</p>
+        </div>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="isDoneLoading && !isEmpty">
       <div class="mx-auto">
         <div class="row">
           <div class="col-md-7">
@@ -43,9 +51,9 @@
               </div>
               <div class="col col-md-6">
                 <button class="btn btn-outline btn-outline-warning btn-sm"
-                        style="float: right;"
-                        disabled="true">
-                        <fa-icon [icon]="faBan"></fa-icon>
+                        style="float: right;">
+                        <fa-icon [icon]="faBan"
+                        (click)="showConfirmTimeBlockCancelModal( distinctTime )"></fa-icon>
                 </button>
               </div>
           </div>
@@ -68,14 +76,16 @@
                           <td class="buttons">
                             <button class="btn btn-outline btn-outline-success btn-sm"
                                     style="margin-right: 2em"
-                                    (click)="triggerAppCompVerification(client)">
+                                    (click)="showConfirmDoneApptModal(client)">
                                     <fa-icon [icon]="faCheck"></fa-icon>
                             </button> 
                             <button class="btn btn-outline btn-outline-warning btn-sm"
-                                    disabled="true"><fa-icon [icon]="faBan"></fa-icon></button> 
+                                    (click)="onConfirmRescheduleIndivClient( client )">
+                              <fa-icon [icon]="faBan"></fa-icon>
+                            </button> 
                             <button class="btn btn-outline btn-outline-secondary btn-sm"
-                                    (click)="triggerContactInfoMessage(client)">
-                                    <fa-icon [icon]="faEnvelope"></fa-icon>
+                                    (click)="showContactInfoModal(client)">
+                                    <fa-icon [icon]="faPhoneBook"></fa-icon>
                             </button> 
                             <button class="btn btn-outline btn-outline-primary btn-sm"
                                     disabled="true"><fa-icon [icon]="faIdCard"></fa-icon></button> 
@@ -102,7 +112,7 @@
     </div>
 </div>
 
-<app-mod-modal [visibilityEventEmitter]="toggleConfirmEventEmitter">
+<app-mod-modal [visibilityEventEmitter]="toggleConfirmDoneApptModal">
   <ng-template appModalHeader>
     <h4>Confirm Complete?</h4>
   </ng-template>
@@ -110,12 +120,12 @@
     <p>Are you sure your appointment is done?</p>
   </ng-template>
   <ng-template appModalFooter let-closeModal>
-    <button class="btn btn-success mx-1" (click)="removeClient(currentClientToRemove);closeModal()">Confirm</button>
+    <button class="btn btn-success mx-1" (click)="removeClient([currentClientToRemove]);closeModal()">Confirm</button>
     <button class="btn btn-danger mx-1" (click)="closeModal()">Cancel</button>
   </ng-template>
 </app-mod-modal>
 
-<app-mod-modal [visibilityEventEmitter]="toggleShowInfoEventEmitter">
+<app-mod-modal [visibilityEventEmitter]="toggleShowInfoModal">
   <ng-template appModalHeader>
     <h4>Contact Info</h4>
   </ng-template>
@@ -124,5 +134,47 @@
   </ng-template>
   <ng-template appModalFooter let-closeModal>
     <button class="btn btn-danger mx-1" (click)="closeModal()">Cancel</button>
+  </ng-template>
+</app-mod-modal>
+
+<app-mod-modal [visibilityEventEmitter]="toggleShowCancelTimeBlockModal">
+  <ng-template appModalHeader>
+    <h4>Confirm Cancellation</h4>
+  </ng-template>
+  <ng-template appModalBody>
+    <p>Are you sure you want to cancel for the <strong>entire</strong> time block?</p> 
+    <p>All of these appointments will be moved to the reschedule manager. This action <strong class="text-danger">cannot be undone</strong>.</p>
+  </ng-template>
+  <ng-template appModalFooter let-closeModal>
+    <button class="btn btn-success mx-1" (click)="onConfirmRescheduleForTime(currentTimeBlockToRemove); closeModal()">Confirm</button>
+    <button class="btn btn-danger mx-1" (click)="closeModal()">Cancel</button>
+  </ng-template>
+</app-mod-modal>
+
+<app-mod-modal [visibilityEventEmitter]="toggleShowCancelIndivModal">
+  <ng-template appModalHeader>
+    <h4>Confirm Cancellation</h4>
+  </ng-template>
+  <ng-template appModalBody>
+    <p>Are you sure you want to cancel this person's appointment?</p>
+    <p>He/she will be moved into the Reschedule Manager.</p>
+  </ng-template>
+  <ng-template appModalFooter let-closeModal>
+    <button class="btn btn-success mx-1" (click)="onConfirmRescheduleIndivClient(this.currentClientToRemove); closeModal()">Confirm</button>
+    <button class="btn btn-danger mx-1" (click)="closeModal()">Cancel</button>
+  </ng-template>
+</app-mod-modal>
+
+<app-mod-modal [visibilityEventEmitter]="toggleLoadingModal">
+  <ng-template appModalHeader>
+      <h4>Please Wait</h4>
+  </ng-template>
+  <ng-template appModalBody>
+      <p><b>Waiting for the process to complete.</b></p>
+      <p>Do not close this window or disconnect from the internet while this is open.</p>
+      <p>This window will automatically close when done.</p>
+  </ng-template>
+  <ng-template appModalFooter>
+      <div class="spinner-grow spinner-grow-sm mx-1 text-light"></div><div class="spinner-grow spinner-grow-sm mx-1 text-warning"></div><div class="spinner-grow spinner-grow-sm mx-1 text-dark"></div>
   </ng-template>
 </app-mod-modal>

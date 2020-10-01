@@ -1,7 +1,7 @@
 import { Component, ContentChild, EventEmitter, Input, OnInit, Output, TemplateRef } from '@angular/core';
-import { ModalBodyDirective } from '../modal-body.directive';
-import { ModalFooterDirective } from '../modal-footer.directive';
-import { ModalHeaderDirective } from '../modal-header.directive';
+import { ModalBodyDirective } from './modal-body.directive';
+import { ModalFooterDirective } from './modal-footer.directive';
+import { ModalHeaderDirective } from './modal-header.directive';
 
 @Component({
   selector: 'app-mod-modal',

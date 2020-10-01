@@ -1,0 +1,218 @@
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12 my-3">
+            <h1>Reschedule Manager</h1>
+        </div>
+    </div>
+    <hr>
+    <div class="row">
+        <div class="spinner-border text-dark mx-auto my-5" 
+           role="status"
+           style="width:5rem;height:5rem;"
+           *ngIf="!isDoneLoading">
+        <span class="sr-only">Loading...</span>
+      </div>
+    </div>
+    <ng-container *ngIf="isDoneLoading">
+        <div class="row py-3">
+            <div class="col-sm-3 my-auto">
+                <h4>{{selectRowCount}}/{{allRowCount}} Selected</h4>
+            </div>
+            <div class="col-sm-9 my-auto">
+                <button class="btn btn-outline-danger mx-1"
+                        [disabled]="selectRowCount === 0"
+                        (click)="showBatchCancelModal()">
+                    <fa-icon [icon]="faBan"></fa-icon>
+                </button>
+                <button class="btn btn-outline-primary mx-1"
+                        [disabled]="selectRowCount === 0"
+                        (click)="showBatchRescheduleModal()">
+                    <fa-icon [icon]="faChevronLeft"></fa-icon>
+                </button>
+                <button class="btn btn-outline-dark mx-1"
+                        [disabled]="selectRowCount === 0"
+                        (click)="showBatchMessageModal()">
+                    <fa-icon [icon]="faEnvelope"></fa-icon>
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col"></th>
+                            <th scope="col" class="col-sm-4">Name</th>
+                            <th scope="col" class="col-sm-3">Last Date Scheduled</th>
+                            <th scope="col" class="col-sm-3">Reason</th>
+                            <th scope="col" class="col-sm-2">Action</th>
+                          </tr>
+                    </thead>
+                    <tbody>
+                        <ng-container *ngFor="let client of reschedClients; index as i">
+                            <tr (click)="selectRow(i)" [ngClass]="{'table-info':rowSelected[i]}">
+                                <th scope="row">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" [id]="'checkBox' + i" [checked]="rowSelected[i]">
+                                        <label class="custom-control-label" [for]="'checkBox'+i"></label>
+                                      </div>
+                                </th>
+                                <td>{{ client.name }}</td>
+                                <td>{{client.date.format('MMMM Do YYYY, dddd')}}</td>
+                                <td>{{ client.reason }}</td>
+                                <td>
+                                    <button class="btn btn-outline-dark mx-1"
+                                            (click)="showInfoModal( client )">
+                                        <fa-icon [icon]="phoneBook"></fa-icon>
+                                    </button>
+                                </td>
+                              </tr>
+                        </ng-container>
+                    </tbody>
+                  </table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12 text-center">
+                <button class="btn-outline-success btn" (click)="setAllSelected()"><fa-icon [icon]="faCheckDouble"></fa-icon>  Select All</button> 
+            </div>
+        </div>
+    </ng-container>
+</div>
+
+<app-mod-modal [visibilityEventEmitter]="toggleBatchCancelModal">
+    <ng-template appModalHeader>
+        <h4>Confirm Batch Cancel</h4>
+    </ng-template>
+    <ng-template appModalBody>
+        <p>You are about to <strong class="text-danger">PERMANENTLY CANCEL</strong> the appointments of the following people:</p>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item" *ngFor="let clientName of selectedClientNames; index as i">
+                {{ clientName }}
+            </li>
+          </ul>
+          <p> <b>{{selectRowCount}}</b> text <span [innerHTML]="selectRowCount > 1 ? 'messages' : 'message'"></span> to inform them of the cancellation will be sent.</p>
+    </ng-template>
+    <ng-template appModalFooter let-closeModal>
+        <button class="btn btn-success mx-1" (click)="onBatchCancelConfirmed();closeModal()">Confirm</button>
+        <button class="btn btn-danger mx-1" (click)="closeModal()">Cancel</button>
+    </ng-template>
+</app-mod-modal>
+
+<app-mod-modal [visibilityEventEmitter]="toggleBatchRescheduleModal">
+    <ng-template appModalHeader>
+        <h4>Confirm Batch Reschedule</h4>
+    </ng-template>
+    <ng-template appModalBody>
+        <p>You are about to reschedule for the following people:</p>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item" *ngFor="let clientName of selectedClientNames; index as i">
+                {{ clientName }}
+            </li>
+          </ul>
+          <p> You will choose a date in the next screen. </p>
+    </ng-template>
+    <ng-template appModalFooter let-closeModal>
+        <button class="btn btn-success mx-1" (click)="showDateSelectModal();closeModal()">Next</button>
+        <button class="btn btn-danger mx-1" (click)="closeModal()">Cancel</button>
+    </ng-template>
+</app-mod-modal>
+
+<app-mod-modal [visibilityEventEmitter]="toggleDateSelectModal">
+    <ng-template appModalHeader>
+        <h4>New Schedule Selection</h4>
+    </ng-template>
+    <ng-template appModalBody>
+    <p>Please Choose a new date to reschedule</p>
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <label class="input-group-text" for="inputGroupSelect01">Date</label>
+        </div>
+        <input type="date">
+        <div class="input-group-prepend">
+            <label class="input-group-text" for="inputGroupSelect01">Date</label>
+            </div>
+        <select class="custom-select" id="inputGroupSelect01">
+            <option selected>Choose...</option>
+            <option value="1">One</option>
+            <option value="2">Two</option>
+            <option value="3">Three</option>
+        </select>
+        </div>
+        <p> <b>{{selectRowCount}}</b> text <span [innerHTML]="selectRowCount > 1 ? 'messages' : 'message'"></span> will be sent.</p>
+    </ng-template>
+    <ng-template appModalFooter let-closeModal>
+        <button class="btn btn-success mx-1" (click)="onBatchRescheduleConfirmed();closeModal()">Next</button>
+        <button class="btn btn-danger mx-1" (click)="closeModal()">Cancel</button>
+    </ng-template>
+</app-mod-modal>
+
+<app-mod-modal [visibilityEventEmitter]="toggleBatchMessageModal">
+    <ng-template appModalHeader>
+        <h4>Confirm Batch Message</h4>
+    </ng-template>
+    <ng-template appModalBody>
+        <p>You are about to send a message to the following people:</p>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item" *ngFor="let clientName of selectedClientNames; index as i">
+                {{ clientName }}
+            </li>
+          </ul>
+          <p> <b>{{selectRowCount}}</b> text <span [innerHTML]="selectRowCount > 1 ? 'people' : 'person'"></span> will receive the message.</p>
+    </ng-template>
+    <ng-template appModalFooter let-closeModal>
+        <button class="btn btn-success mx-1" (click)="showMessageModal();closeModal()">Confirm</button>
+        <button class="btn btn-danger mx-1" (click)="closeModal()">Cancel</button>
+    </ng-template>
+</app-mod-modal>
+
+<app-mod-modal [visibilityEventEmitter]="toggleMessageModal">
+    <ng-template appModalHeader>
+        <h4>Send Message</h4>
+    </ng-template>
+    <ng-template appModalBody>
+        <p>Send a short message:</p>
+        <div class="form-group">
+            <textarea class="form-control" id="exampleFormControlTextarea1" placeholder="start typing here..." rows="3" [(ngModel)]="textMessageString" maxlength="50"></textarea>
+            <label for="exampleFormControlTextarea1" class="text-muted">{{textMessageString.length}} / 50 characters used</label>
+        </div>
+        <p> <b>{{selectRowCount}}</b> text <span [innerHTML]="selectRowCount > 1 ? 'messages' : 'message'"></span> will be sent.</p>
+        <p> <strong>IMPORTANT:</strong> It will take some time for the recipients to get the message. THEY <b><span class="text-danger">CANNOT</span> REPLY</b> as well</p> 
+        <p> <strong>Recommended:</strong> Contact them directly with your number. Press the button next to the name for their contact info. Cancel this first...</p>
+    </ng-template>
+    <ng-template appModalFooter let-closeModal>
+        <button class="btn btn-primary mx-1"
+                (click)="onMessageConfirmed();closeModal()"
+                [disabled]="textMessageString.length < 1">
+            <fa-icon [icon]="paperPlane"></fa-icon> Send
+        </button>
+        <button class="btn btn-danger mx-1" (click)="closeModal()">Cancel</button>
+    </ng-template>
+</app-mod-modal>
+
+<app-mod-modal [visibilityEventEmitter]="toggleLoadingModal">
+    <ng-template appModalHeader>
+        <h4>Please Wait</h4>
+    </ng-template>
+    <ng-template appModalBody>
+        <p><b>Waiting for the process to complete.</b></p>
+        <p>Do not close this window or disconnect from the internet while this is open.</p>
+        <p>This window will automatically close when done.</p>
+    </ng-template>
+    <ng-template appModalFooter>
+        <div class="spinner-grow spinner-grow-sm mx-1 text-light"></div><div class="spinner-grow spinner-grow-sm mx-1 text-warning"></div><div class="spinner-grow spinner-grow-sm mx-1 text-dark"></div>
+    </ng-template>
+</app-mod-modal>
+
+<app-mod-modal [visibilityEventEmitter]="toggleShowInfoModal">
+    <ng-template appModalHeader>
+      <h4>Contact Info</h4>
+    </ng-template>
+    <ng-template appModalBody>
+      <b>Contact Number: </b> {{currentInfoClient.contactNumber}}
+    </ng-template>
+    <ng-template appModalFooter let-closeModal>
+      <button class="btn btn-danger mx-1" (click)="closeModal()">Cancel</button>
+    </ng-template>
+  </app-mod-modal>
