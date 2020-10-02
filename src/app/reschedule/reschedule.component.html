@@ -16,7 +16,7 @@
     <ng-container *ngIf="isDoneLoading">
         <div class="row py-3">
             <div class="col-sm-3 my-auto">
-                <h4>{{selectRowCount}}/{{allRowCount}} Selected</h4>
+                <h4>{{selectRowCount}}/{{rowCount}} Selected</h4>
             </div>
             <div class="col-sm-9 my-auto">
                 <button class="btn btn-outline-danger mx-1"
@@ -43,10 +43,18 @@
                     <thead>
                         <tr>
                             <th scope="col"></th>
-                            <th scope="col" class="col-sm-4">Name</th>
-                            <th scope="col" class="col-sm-3">Last Date Scheduled</th>
-                            <th scope="col" class="col-sm-3">Reason</th>
-                            <th scope="col" class="col-sm-2">Action</th>
+                            <th scope="col" class="w-25">
+                                Name
+                            </th>
+                            <th scope="col" class="w-25">
+                                Last Date Scheduled
+                            </th>
+                            <th scope="col" class="w-25">
+                                Reason
+                            </th>
+                            <th scope="col" class="w-25">
+                                Action
+                            </th>
                           </tr>
                     </thead>
                     <tbody>
@@ -59,7 +67,7 @@
                                       </div>
                                 </th>
                                 <td>{{ client.name }}</td>
-                                <td>{{client.date.format('MMMM Do YYYY, dddd')}}</td>
+                                <td>{{client.date.format('MMMM Do YYYY, dddd')}}, {{client.time}}</td>
                                 <td>{{ client.reason }}</td>
                                 <td>
                                     <button class="btn btn-outline-dark mx-1"
@@ -75,10 +83,20 @@
         </div>
         <div class="row">
             <div class="col-sm-12 text-center">
-                <button class="btn-outline-success btn" (click)="setAllSelected()"><fa-icon [icon]="faCheckDouble"></fa-icon>  Select All</button> 
+                <button class="btn-outline-success btn mx-1" (click)="setAllSelected()"><fa-icon [icon]="faCheckDouble"></fa-icon>  Select All</button> 
+                <button class="btn btn-outline-warning mx-1" (click)="clearSelection()"> Clear Selection </button>
             </div>
         </div>
     </ng-container>
+    <div class="row" *ngIf="isDoneLoading">
+        <div class="mx-auto my-5">
+          <button class="btn btn-outline-secondary btn-lg"
+                  style="border-radius:100%;height: 3em;width:3em;"
+                  (click)="refresh()">
+                  <fa-icon [icon]="faSync"></fa-icon>
+          </button>
+        </div>
+    </div>
 </div>
 
 <app-mod-modal [visibilityEventEmitter]="toggleBatchCancelModal">
@@ -124,26 +142,67 @@
         <h4>New Schedule Selection</h4>
     </ng-template>
     <ng-template appModalBody>
-    <p>Please Choose a new date to reschedule</p>
-    <div class="input-group mb-3">
-        <div class="input-group-prepend">
-            <label class="input-group-text" for="inputGroupSelect01">Date</label>
-        </div>
-        <input type="date">
-        <div class="input-group-prepend">
-            <label class="input-group-text" for="inputGroupSelect01">Date</label>
+        <p>You are rescheduling for <strong>{{ selectedClientNames.length }}</strong> people</p>
+        <p>Please choose a new date to reschedule:</p>
+        <div class="form-check" *ngFor="let openDate of openDates; index as i">
+            <div class="form-group">
+                <input class="form-check-input"
+                       type="radio"
+                       name="exampleRadios"
+                       [id]="'exampleRadios' + i"
+                       (change)="onChosenDate(openDate)">
+                <label class="form-check-label" [for]="'exampleRadios' + i">
+                    <span>{{openDate.date}}, {{openDate.time}}</span> - <strong><span [ngClass]="{'text-danger': openDate.slots < selectedClientNames.length }">{{openDate.slots}}/{{openDate.allSlots}}</span> available</strong>
+                </label>
             </div>
-        <select class="custom-select" id="inputGroupSelect01">
-            <option selected>Choose...</option>
-            <option value="1">One</option>
-            <option value="2">Two</option>
-            <option value="3">Three</option>
-        </select>
         </div>
-        <p> <b>{{selectRowCount}}</b> text <span [innerHTML]="selectRowCount > 1 ? 'messages' : 'message'"></span> will be sent.</p>
     </ng-template>
     <ng-template appModalFooter let-closeModal>
-        <button class="btn btn-success mx-1" (click)="onBatchRescheduleConfirmed();closeModal()">Next</button>
+        <button class="btn btn-success mx-1" (click)="showActionSelectModal();closeModal()">Next</button>
+        <button class="btn btn-danger mx-1" (click)="closeModal()">Cancel</button>
+    </ng-template>
+</app-mod-modal>
+
+<!-- STAR -->
+<app-mod-modal [visibilityEventEmitter]="toggleActionModal">
+    <ng-template appModalHeader>
+        <h4>Choose Mode</h4>
+    </ng-template>
+    <ng-template appModalBody>
+        <p>What would you like to do?</p>
+        <div class="form-check">
+            <div class="form-group">
+                <input class="form-check-input"
+                       type="radio"
+                       name="modeSelect"
+                       id="ctrMode"
+                       value = "CTR"
+                       [(ngModel)]="currentSelectedAction"
+                       (change)="onChosenAction( 'CTR' )"
+                       checked>
+                <label class="form-check-label" for="ctrMode">
+                    <span>Reserve slots for this day to selected people.</span>
+                </label>
+            </div>
+            <div class="alert alert-danger" role="alert" *ngIf="currentSelectedDate.slots < selectedClientNames.length">
+                There arent enough slots for this date! We will register only {{currentSelectedDate.slots}} out of {{selectedClientNames.length}} you chose!
+            </div>
+            <div class="form-group">
+                <input class="form-check-input"
+                       type="radio"
+                       name="modeSelect"
+                       id="priorityMode"
+                       value="PRIORITY"
+                       [(ngModel)]="currentSelectedAction"
+                       (change)="onChosenAction( 'PRIORITY' )">
+                <label class="form-check-label" for="priorityMode">
+                    <span>Accomodate this people outside of the line (an asterink [*] will be added at the end of their names)</span>
+                </label>
+            </div>
+        </div>
+    </ng-template>
+    <ng-template appModalFooter let-closeModal>
+        <button class="btn btn-success mx-1" (click)="onBatchRescheduleConfirmed( currentSelectedAction ); closeModal()">Confirm</button>
         <button class="btn btn-danger mx-1" (click)="closeModal()">Cancel</button>
     </ng-template>
 </app-mod-modal>
@@ -215,4 +274,14 @@
     <ng-template appModalFooter let-closeModal>
       <button class="btn btn-danger mx-1" (click)="closeModal()">Cancel</button>
     </ng-template>
+  </app-mod-modal>
+
+  <app-mod-modal [visibilityEventEmitter]="toggleConnErrorModal">
+      <ng-template appModalHeader>
+          <h4>Connection Error</h4>
+      </ng-template>
+      <ng-template appModalBody>
+          <p>The connection with the server was lost</p>
+          <p>Please try again later...</p>
+      </ng-template>
   </app-mod-modal>

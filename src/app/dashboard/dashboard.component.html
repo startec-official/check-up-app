@@ -11,7 +11,7 @@
         <span class="sr-only">Loading...</span>
       </div>
     </div>
-    <ng-container *ngIf="isEmpty">
+    <ng-container *ngIf="isEmpty && isDoneLoading">
       <div class="row">
         <div class="col-sm-12 text-center">
           <h4 class="text-secondary p-5">Appointments will appear here. Currently there are none.</h4>
@@ -80,7 +80,7 @@
                                     <fa-icon [icon]="faCheck"></fa-icon>
                             </button> 
                             <button class="btn btn-outline btn-outline-warning btn-sm"
-                                    (click)="onConfirmRescheduleIndivClient( client )">
+                                    (click)="showConfirmIndivCancelModal( client )">
                               <fa-icon [icon]="faBan"></fa-icon>
                             </button> 
                             <button class="btn btn-outline btn-outline-secondary btn-sm"
@@ -99,7 +99,6 @@
           </ng-container>
       </div>
     </ng-container>
-    <!-- TODO: add more items section here -->
     <div class="row" *ngIf="isDoneLoading">
       <div class="mx-auto">
         <button class="btn btn-outline-secondary btn-lg"
@@ -107,7 +106,6 @@
                 (click)="refresh()">
                 <fa-icon [icon]="faSync"></fa-icon>
         </button>
-        <!-- (click)="testAdd()" -->
       </div>
     </div>
 </div>
@@ -144,6 +142,11 @@
   <ng-template appModalBody>
     <p>Are you sure you want to cancel for the <strong>entire</strong> time block?</p> 
     <p>All of these appointments will be moved to the reschedule manager. This action <strong class="text-danger">cannot be undone</strong>.</p>
+    <p class="mt-3"><strong>Close the Slot:</strong></p>
+    <div class="custom-control custom-checkbox">
+      <input type="checkbox" class="custom-control-input" id="openSlotCheckBox" [(ngModel)]="currentOpenSlotInstr">
+      <label class="custom-control-label" for="openSlotCheckBox">Check this to make the previously occupied slots unavailable.</label>
+    </div>
   </ng-template>
   <ng-template appModalFooter let-closeModal>
     <button class="btn btn-success mx-1" (click)="onConfirmRescheduleForTime(currentTimeBlockToRemove); closeModal()">Confirm</button>
@@ -158,6 +161,11 @@
   <ng-template appModalBody>
     <p>Are you sure you want to cancel this person's appointment?</p>
     <p>He/she will be moved into the Reschedule Manager.</p>
+    <p class="mt-3"><strong>Close the Slot:</strong></p>
+    <div class="custom-control custom-checkbox">
+      <input type="checkbox" class="custom-control-input" id="openSlotCheckBox" [(ngModel)]="currentOpenSlotInstr">
+      <label class="custom-control-label" for="openSlotCheckBox">Check this to make the previously occupied slots unavailable.</label>
+    </div>
   </ng-template>
   <ng-template appModalFooter let-closeModal>
     <button class="btn btn-success mx-1" (click)="onConfirmRescheduleIndivClient(this.currentClientToRemove); closeModal()">Confirm</button>

@@ -46,6 +46,7 @@ export class DashboardComponent implements OnInit {
   currentClientToRemove : Client;
   currentClientToCheckInfo : Client;
   currentTimeBlockToRemove : Client[] = [];
+  currentOpenSlotInstr : boolean = false;
 
   constructor( private utils : UtilsService , private httpAppService : HttpAppService , private ngZone : NgZone ) { }
 
@@ -130,16 +131,27 @@ export class DashboardComponent implements OnInit {
     this.distinctTimesForClientsOfDay = this.getClientsForDateSepByTime( this.distinctDates[ this.currentDateIndex ] );
   }
 
-  onConfirmRescheduleForTime( distinctTime : Client[] ) {
+  onConfirmRescheduleForTime( distinctTime : Client[] ) { // TODO: ask if going to keep the slot or going to remove
     this.toggleLoadingModal.emit('show');
+    const clientDate = distinctTime[0].date;
+    const clientTime = distinctTime[0].time;
     var clientsToResched = [];
     distinctTime.forEach(( clientForTime : Client ) => {
       clientsToResched.push( clientForTime );
     });
     this.httpAppService.postReschedClientsData( clientsToResched ).subscribe( (data) => {
       console.log( data );
+      this.currentTimeBlockToRemove = [];
       this.removeClient( clientsToResched );
     });
+
+    if( !this.currentOpenSlotInstr ) {
+      console.log( 'I was executed!' );
+      
+      this.httpAppService.updateSchedSlot( clientDate , clientTime , distinctTime.length * -1 ).subscribe((data)=>{
+        console.log(data);
+      });
+    }
   }
 
   onConfirmRescheduleIndivClient( selectedClient : Client ) {
@@ -147,6 +159,13 @@ export class DashboardComponent implements OnInit {
     this.httpAppService.postReschedClientsData( [selectedClient] ).subscribe((data)=>{
       this.removeClient( [selectedClient] );
     });
+    if( !this.currentOpenSlotInstr ) {
+      console.log( 'I was executed indiv!' );
+      
+      this.httpAppService.updateSchedSlot( selectedClient.date , selectedClient.time , -1 ).subscribe((data)=>{
+        console.log(data);
+      });
+    }
   }
 
   removeClient( clients : Client[] ) {
@@ -158,10 +177,11 @@ export class DashboardComponent implements OnInit {
     console.log(clientIdsString);
     this.httpAppService.removeClient( clientIdsString ).subscribe((data) => {    
         console.log(data);
-        clients.forEach((client)=> {
+        clients.forEach((client)=> { // TODO: change to refresh
           const index = this.allClients.indexOf(client);
           this.allClients.splice(index, 1);
         });
+        this.isEmpty = this.allClients.length < 1;
         this.updateView();
         this.isDoneLoading = true;
         this.toggleLoadingModal.emit('hide');
@@ -170,7 +190,10 @@ export class DashboardComponent implements OnInit {
   }
 
   showConfirmTimeBlockCancelModal( timeBlock : Client[] ) {
+    this.currentTimeBlockToRemove = timeBlock;
     this.toggleShowCancelTimeBlockModal.emit('show');
+    console.log("timblock trigger working");
+    
   }
 
   showConfirmIndivCancelModal( client : Client ) {

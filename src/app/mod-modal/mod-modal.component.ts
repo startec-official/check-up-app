@@ -51,12 +51,10 @@ export class ModModalComponent implements OnInit {
       this.visibilityEventEmitter.subscribe(( visibility : string ) => {
         if( visibility == 'show' ) {
           this.showModal = true;
-          console.log( "Nah, it was me!" );  
         }
         else if( visibility == 'hide' ) {
           this.showModal = false;
         }
-        console.log( "I was fired!!" );
       });
     }
   }
