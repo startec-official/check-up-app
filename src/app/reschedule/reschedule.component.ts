@@ -22,7 +22,7 @@ export class RescheduleComponent implements OnInit {
   currentSelectedClientIds : number[] = [];
   currentInfoClient : Client;
   currentSelectedDate : { date : string , time : string , slots : number , allSlots : number };
-  currentSelectedAction : string;
+  currentSelectedAction : string = '';
   rowCount : number = 0;
 
   faEnvelope : any;
@@ -250,18 +250,33 @@ export class RescheduleComponent implements OnInit {
         const tempSelectedClients = this.getSelectedClients( this.currentSelectedClientIds ); // TODO: PRIORITY fix callback hell
         var selectedClients : Client[] = []; // get only the names available for the slot
         const limit : number = this.currentSelectedDate.slots < tempSelectedClients.length ? this.currentSelectedDate.slots : tempSelectedClients.length;
+        var increment = 0;
         for (let i = 0; i < limit; i++) {
+          if( !tempSelectedClients[i].reason.includes('(PRIORITY)') ) {
+            increment += 1;
+          }
           selectedClients.push(tempSelectedClients[i]);
         }
         this.httpService.postSchedClientsData( selectedClients , moment(this.currentSelectedDate.date,'MMMM Do YYYY, dddd' ,true) , this.currentSelectedDate.time ).subscribe( (data) => {
           console.log(data);
-          this.httpService.updateSchedSlot(moment(this.currentSelectedDate.date,'MMMM Do YYYY, dddd',true),this.currentSelectedDate.time , selectedClients.length ).subscribe( (newData) => {
+          this.httpService.updateSchedSlot(moment(this.currentSelectedDate.date,'MMMM Do YYYY, dddd',true),this.currentSelectedDate.time , increment ).subscribe( (newData) => {
             this.removeFromResched( selectedClients.map( (client) => client.userId ) );
             this.currentSelectedClientIds = null;
           });
         });
         break;
       case 'PRIORITY':
+        var selectedClients : Client[] = this.getSelectedClients( this.currentSelectedClientIds );
+        selectedClients.forEach( (client : Client) => {
+          if( !client.reason.includes('PRIORITY') ) {
+            client.reason = `(PRIORITY) ${client.reason}`;
+          }
+        });
+        this.httpService.postSchedClientsData( selectedClients , moment(this.currentSelectedDate.date,'MMMM Do YYYY, dddd' ,true) , this.currentSelectedDate.time ).subscribe( (data) => {
+          console.log( data );
+          this.removeFromResched( selectedClients.map( (client) => client.userId ) );
+          this.currentSelectedClientIds = null;
+        });
         break;
       default:
         console.log( 'Error' );

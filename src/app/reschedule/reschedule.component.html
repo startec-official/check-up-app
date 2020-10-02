@@ -200,9 +200,13 @@
                 </label>
             </div>
         </div>
+        <p class="mt-2"> <b>{{selectRowCount}}</b> text <span [innerHTML]="selectRowCount > 1 ? 'messages' : 'message'"></span> will be sent to inform them of the new schedule.</p>
     </ng-template>
     <ng-template appModalFooter let-closeModal>
-        <button class="btn btn-success mx-1" (click)="onBatchRescheduleConfirmed( currentSelectedAction ); closeModal()">Confirm</button>
+        <button class="btn btn-success mx-1"
+                (click)="onBatchRescheduleConfirmed( currentSelectedAction ); closeModal()"
+                [disabled]="currentSelectedAction === ''">
+            Confirm</button>
         <button class="btn btn-danger mx-1" (click)="closeModal()">Cancel</button>
     </ng-template>
 </app-mod-modal>

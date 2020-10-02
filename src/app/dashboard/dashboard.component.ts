@@ -136,7 +136,14 @@ export class DashboardComponent implements OnInit {
     const clientDate = distinctTime[0].date;
     const clientTime = distinctTime[0].time;
     var clientsToResched = [];
+    var increment = 0;
     distinctTime.forEach(( clientForTime : Client ) => {
+      if( !clientForTime.reason.includes( '(PRIORITY)' ) ) {
+        increment += 1;
+      }
+      else {
+        console.log('i was detected!');
+      }
       clientsToResched.push( clientForTime );
     });
     this.httpAppService.postReschedClientsData( clientsToResched ).subscribe( (data) => {
@@ -148,7 +155,7 @@ export class DashboardComponent implements OnInit {
     if( !this.currentOpenSlotInstr ) {
       console.log( 'I was executed!' );
       
-      this.httpAppService.updateSchedSlot( clientDate , clientTime , distinctTime.length * -1 ).subscribe((data)=>{
+      this.httpAppService.updateSchedSlot( clientDate , clientTime , increment * -1 ).subscribe((data)=>{
         console.log(data);
       });
     }
@@ -162,7 +169,7 @@ export class DashboardComponent implements OnInit {
     if( !this.currentOpenSlotInstr ) {
       console.log( 'I was executed indiv!' );
       
-      this.httpAppService.updateSchedSlot( selectedClient.date , selectedClient.time , -1 ).subscribe((data)=>{
+      this.httpAppService.updateSchedSlot( selectedClient.date , selectedClient.time , selectedClient.reason.includes('(PRIORITY)') ? 0 : -1 ).subscribe((data)=>{
         console.log(data);
       });
     }
