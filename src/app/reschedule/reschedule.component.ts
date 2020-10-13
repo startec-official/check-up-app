@@ -164,7 +164,7 @@ export class RescheduleComponent implements OnInit {
       this.refresh();
       this.toggleLoadingModal.emit('hide');
     });
-    this.currentSelectedClientIds = null;
+    this.clearSelection();
   }
 
   // UI updating functions
@@ -191,6 +191,7 @@ export class RescheduleComponent implements OnInit {
     for( var i = 0 ; i < this.rowCount; i ++ ) {
       this.rowSelected[i] = false;
     }
+    this.currentSelectedClientIds = [];
   }
 
   showBatchCancelModal() {
@@ -206,21 +207,34 @@ export class RescheduleComponent implements OnInit {
 
   showDateSelectModal() {
     var parsedData = [];
-    var openDates = [];
+    this.openDates = [];
     this.httpService.getOpenDates().subscribe((data)=>{
       for( var key in data ) {
         parsedData.push( data[key] );
       }
-      console.log(parsedData);
       parsedData.forEach((result) => {
-        openDates.push( { date : result.sched_date , time : result.sched_time, slots : parseInt( result.sched_slots ) - parseInt( result.sched_taken ) , allSlots : parseInt( result.sched_slots )  } );
-        this.openDates = openDates.filter( (openDate) => moment(openDate.date,'MMMM Do YYYY, dddd',true).isSameOrAfter( this.utils.getCurrentDate().add(1,'day') , 'date' ) );
-      this.toggleDateSelectModal.emit('show');
-      }, (err) => {
-        this.toggleDateSelectModal.emit('hide');
-        this.toggleConnErrorModal.emit('show');
+        this.openDates.push( { date : result.sched_date , time : result.sched_time, slots : parseInt( result.sched_slots ) - parseInt( result.sched_taken ) , allSlots : parseInt( result.sched_slots )  } );
+        
       });
-    });
+        console.log('Open dates:');
+        console.log(this.openDates);
+        console.log(moment(this.openDates[0].date,'MMMM Do YYYY, dddd',true));
+        this.openDates = this.openDates.filter( 
+          (openDate) => moment(openDate.date,'MMMM Do YYYY, dddd',true).isSameOrAfter( this.utils.getCurrentDate().add(1,'day') , 'date' ) 
+        ).sort( (a,b) => {
+          const dateA = moment(a.date,'MMMM Do YYYY, dddd',true);
+          const dateB = moment(b.date,'MMMM Do YYYY, dddd',true);
+          if( dateA.isBefore( dateB , 'date' ) )
+            return -1;
+          else if( dateA.isAfter( dateB , 'date' ) )
+            return 1;
+          else
+            return 0;
+        });
+        console.log('After:');
+        console.log(this.openDates);
+        this.toggleDateSelectModal.emit('show');
+      });
   }
 
   showBatchMessageModal() {
@@ -243,11 +257,12 @@ export class RescheduleComponent implements OnInit {
   // event handlers
 
   onBatchRescheduleConfirmed( action : string ) {
-    this.toggleLoadingModal.emit('show');    
+    this.toggleLoadingModal.emit('show');
     switch( action ) {
       case 'CTR': // TODO: manage race conditions for server writing
         this.currentSelectedClientIds = this.getSelectedClientIds();
         const tempSelectedClients = this.getSelectedClients( this.currentSelectedClientIds ); // TODO: PRIORITY fix callback hell
+        const selectedDate = moment(this.currentSelectedDate.date,'MMMM Do YYYY, dddd' ,true);
         var selectedClients : Client[] = []; // get only the names available for the slot
         const limit : number = this.currentSelectedDate.slots < tempSelectedClients.length ? this.currentSelectedDate.slots : tempSelectedClients.length;
         var increment = 0;
@@ -257,11 +272,15 @@ export class RescheduleComponent implements OnInit {
           }
           selectedClients.push(tempSelectedClients[i]);
         }
-        this.httpService.postSchedClientsData( selectedClients , moment(this.currentSelectedDate.date,'MMMM Do YYYY, dddd' ,true) , this.currentSelectedDate.time ).subscribe( (data) => {
+        this.httpService.postSchedClientsData( selectedClients , selectedDate , this.currentSelectedDate.time ).subscribe( (data) => {
           console.log(data);
-          this.httpService.updateSchedSlot(moment(this.currentSelectedDate.date,'MMMM Do YYYY, dddd',true),this.currentSelectedDate.time , increment ).subscribe( (newData) => {
+          this.httpService.updateSchedSlot(selectedDate,this.currentSelectedDate.time , increment ).subscribe( (newData) => {
             this.removeFromResched( selectedClients.map( (client) => client.userId ) );
-            this.currentSelectedClientIds = null;
+            this.httpService.sendReschedMessage( selectedDate , this.currentSelectedDate.time , selectedClients.map((client)=>client.contactNumber) , selectedClients.map((client)=> 'ABCD' ) ).subscribe((data)=>{ // TODO: replace with client codes
+              console.log(data);
+              this.toggleLoadingModal.emit('hide');
+              this.clearSelection();
+            });
           });
         });
         break;
@@ -275,7 +294,7 @@ export class RescheduleComponent implements OnInit {
         this.httpService.postSchedClientsData( selectedClients , moment(this.currentSelectedDate.date,'MMMM Do YYYY, dddd' ,true) , this.currentSelectedDate.time ).subscribe( (data) => {
           console.log( data );
           this.removeFromResched( selectedClients.map( (client) => client.userId ) );
-          this.currentSelectedClientIds = null;
+          this.clearSelection();
         });
         break;
       default:
@@ -287,15 +306,22 @@ export class RescheduleComponent implements OnInit {
   onBatchCancelConfirmed() {
     this.toggleLoadingModal.emit('show');
     this.currentSelectedClientIds = this.getSelectedClientIds();
+    const selectedClients = this.getSelectedClients( this.currentSelectedClientIds );
+    this.httpService.sendCancelledMessage( selectedClients.map((client)=>client.contactNumber) ).subscribe((data)=>{
+      console.log(data);
+      this.toggleLoadingModal.emit('hide');
+    });
     this.removeFromResched( this.currentSelectedClientIds );
   }
 
-  onMessageConfirmed() {
+  onMessageConfirmed( message : string ) {
     this.toggleLoadingModal.emit('show');
-    setTimeout( () => { // replace with actual code
-      this.refresh();
+    this.currentSelectedClientIds = this.getSelectedClientIds();
+    const selectedClients = this.getSelectedClients( this.currentSelectedClientIds );
+    this.httpService.sendCustomMessage( message , selectedClients.map( (client) => client.contactNumber ) ).subscribe((data)=>{
+      console.log(data);
       this.toggleLoadingModal.emit('hide');
-    } , 5000 );
+    });
   }
 
   onChosenDate( selectedDate : { date : string, time : string , slots : number , allSlots : number } ) {

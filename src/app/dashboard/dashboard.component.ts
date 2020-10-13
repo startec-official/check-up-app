@@ -149,6 +149,9 @@ export class DashboardComponent implements OnInit {
     this.httpAppService.postReschedClientsData( clientsToResched ).subscribe( (data) => {
       console.log( data );
       this.currentTimeBlockToRemove = [];
+      this.httpAppService.sendMovedToReschedMessage( clientsToResched.map((client : Client )=> client.contactNumber ) ).subscribe((data)=>{
+        console.log(data);
+      });
       this.removeClient( clientsToResched );
     });
 
@@ -164,6 +167,9 @@ export class DashboardComponent implements OnInit {
   onConfirmRescheduleIndivClient( selectedClient : Client ) {
     this.isDoneLoading = false;
     this.httpAppService.postReschedClientsData( [selectedClient] ).subscribe((data)=>{
+      this.httpAppService.sendMovedToReschedMessage( [ selectedClient.contactNumber ] ).subscribe((data)=>{
+        console.log(data);
+      });
       this.removeClient( [selectedClient] );
     });
     if( !this.currentOpenSlotInstr ) {

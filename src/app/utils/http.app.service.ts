@@ -75,16 +75,66 @@ export class HttpAppService {
     });
   }
 
+  public getReschedClientData() {
+    return this.http.get( 'http://localhost:3000/schedule/getresched' , {
+      headers : { 'Content-Type' : 'application/json' }
+    });
+  }
+
+  public sendCustomMessage( message : string , contactNos : string[] ) {
+    var contactsString : string = "";
+    contactNos.forEach( (contactNo) => {
+      contactsString += `${contactNo},`;
+    });
+    contactsString = contactsString.substring(0,contactsString.length-1);
+    return this.http.post(`http://localhost:3000/clients/sendmessage/custom/${contactsString}`,JSON.stringify({ customMessage : message}),{
+      headers : { 'Content-Type' : 'application/json' },
+      responseType : 'text'
+    });
+  }
+
+  public sendReschedMessage( inputDate : Moment , inputTime : string , inputContacts : string[] , inputCodes : string[] ) {
+    const dataBody = { date : inputDate.format('MM/DD/YY') , time : inputTime , codes : inputCodes  };
+    var contactsString : string = "";
+    inputContacts.forEach( (contactNo) => {
+      contactsString += `${contactNo},`;
+    });
+    contactsString = contactsString.substring(0,contactsString.length-1);
+    return this.http.post(`http://localhost:3000/clients/sendmessage/reschedule/complete/${contactsString}`,dataBody,{
+      headers : { 'Content-Type' : 'application/json' },
+      responseType : 'text'
+    });
+  }
+
+  public sendMovedToReschedMessage( contactNos : string[] ) {
+    var contactsString : string = "";
+    contactNos.forEach( (contactNo) => {
+      contactsString += `${contactNo},`;
+    });
+    contactsString = contactsString.substring(0,contactsString.length-1);
+    return this.http.post(`http://localhost:3000/clients/sendmessage/reschedule/moved/${contactsString}`, null ,{
+      headers : { 'Content-Type' : 'application/json' },
+      responseType : 'text'
+    });
+  }
+
+  public sendCancelledMessage( contactNos : string[] ) {
+    var contactsString : string = "";
+    contactNos.forEach( (contactNo) => {
+      contactsString += `${contactNo},`;
+    });
+    contactsString = contactsString.substring(0,contactsString.length-1);
+    return this.http.post( `http://localhost:3000/clients/sendmessage/reschedule/cancel/${contactsString}` , null , {
+      headers : { 'Content-Type' : 'application/json' },
+      responseType : 'text'
+    });
+  }
+
+  //debug
   public testWrite( data : any ) {
     return this.http.post( 'http://localhost:3000/clients/testWrite' , JSON.stringify( data ) , {
       headers: { 'Content-Type' : 'application/json' },
       responseType: 'text'
     } );
-  }
-
-  public getReschedClientData() {
-    return this.http.get( 'http://localhost:3000/schedule/getresched' , {
-      headers : { 'Content-Type' : 'application/json' }
-    });
   }
 }
