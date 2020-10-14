@@ -16,21 +16,21 @@
     <ng-container *ngIf="isDoneLoading">
         <div class="row py-3">
             <div class="col-sm-3 my-auto">
-                <h4>{{selectRowCount}}/{{rowCount}} Selected</h4>
+                <h4>{{selectedRowCount}}/{{allReschedClientsCount}} Selected</h4>
             </div>
             <div class="col-sm-9 my-auto">
                 <button class="btn btn-outline-danger mx-1"
-                        [disabled]="selectRowCount === 0"
+                        [disabled]="selectedRowCount === 0"
                         (click)="showBatchCancelModal()">
                     <fa-icon [icon]="faBan"></fa-icon>
                 </button>
                 <button class="btn btn-outline-primary mx-1"
-                        [disabled]="selectRowCount === 0"
+                        [disabled]="selectedRowCount === 0"
                         (click)="showBatchRescheduleModal()">
                     <fa-icon [icon]="faChevronLeft"></fa-icon>
                 </button>
                 <button class="btn btn-outline-dark mx-1"
-                        [disabled]="selectRowCount === 0"
+                        [disabled]="selectedRowCount === 0"
                         (click)="showBatchMessageModal()">
                     <fa-icon [icon]="faEnvelope"></fa-icon>
                 </button>
@@ -58,7 +58,7 @@
                           </tr>
                     </thead>
                     <tbody>
-                        <ng-container *ngFor="let client of reschedClients; index as i">
+                        <ng-container *ngFor="let client of allReschedClients; index as i">
                             <tr (click)="selectRow(i)" [ngClass]="{'table-info':rowSelected[i]}">
                                 <th scope="row">
                                     <div class="custom-control custom-checkbox">
@@ -83,7 +83,7 @@
         </div>
         <div class="row">
             <div class="col-sm-12 text-center">
-                <button class="btn-outline-success btn mx-1" (click)="setAllSelected()"><fa-icon [icon]="faCheckDouble"></fa-icon>  Select All</button> 
+                <button class="btn-outline-success btn mx-1" (click)="selectAllClients()"><fa-icon [icon]="faCheckDouble"></fa-icon>  Select All</button> 
                 <button class="btn btn-outline-warning mx-1" (click)="clearSelection()"> Clear Selection </button>
             </div>
         </div>
@@ -106,11 +106,11 @@
     <ng-template appModalBody>
         <p>You are about to <strong class="text-danger">PERMANENTLY CANCEL</strong> the appointments of the following people:</p>
         <ul class="list-group list-group-flush">
-            <li class="list-group-item" *ngFor="let clientName of selectedClientNames; index as i">
+            <li class="list-group-item" *ngFor="let clientName of currentSelectedClientNames; index as i">
                 {{ clientName }}
             </li>
           </ul>
-          <p> <b>{{selectRowCount}}</b> text <span [innerHTML]="selectRowCount > 1 ? 'messages' : 'message'"></span> to inform them of the cancellation will be sent.</p>
+          <p> <b>{{selectedRowCount}}</b> text <span [innerHTML]="selectedRowCount > 1 ? 'messages' : 'message'"></span> to inform them of the cancellation will be sent.</p>
     </ng-template>
     <ng-template appModalFooter let-closeModal>
         <button class="btn btn-success mx-1" (click)="onBatchCancelConfirmed();closeModal()">Confirm</button>
@@ -125,7 +125,7 @@
     <ng-template appModalBody>
         <p>You are about to reschedule for the following people:</p>
         <ul class="list-group list-group-flush">
-            <li class="list-group-item" *ngFor="let clientName of selectedClientNames; index as i">
+            <li class="list-group-item" *ngFor="let clientName of currentSelectedClientNames; index as i">
                 {{ clientName }}
             </li>
           </ul>
@@ -142,23 +142,28 @@
         <h4>New Schedule Selection</h4>
     </ng-template>
     <ng-template appModalBody>
-        <p>You are rescheduling for <strong>{{ selectedClientNames.length }}</strong> people</p>
-        <p>Please choose a new date to reschedule:</p>
-        <div class="form-check" *ngFor="let openDate of openDates; index as i">
-            <div class="form-group">
-                <input class="form-check-input"
-                       type="radio"
-                       name="exampleRadios"
-                       [id]="'exampleRadios' + i"
-                       (change)="onChosenDate(openDate)">
-                <label class="form-check-label" [for]="'exampleRadios' + i">
-                    <span>{{openDate.date}}, {{openDate.time}}</span> - <strong><span [ngClass]="{'text-danger': openDate.slots < selectedClientNames.length }">{{openDate.slots}}/{{openDate.allSlots}}</span> available</strong>
-                </label>
+        <ng-container *ngIf="isScheduleOpen">
+            <p>You are rescheduling for <strong>{{ currentSelectedClientNames.length }}</strong> people</p>
+            <p>Please choose a new date to reschedule:</p>
+            <div class="form-check" *ngFor="let openDate of openDates; index as i">
+                <div class="form-group">
+                    <input class="form-check-input"
+                           type="radio"
+                           name="exampleRadios"
+                           [id]="'exampleRadios' + i"
+                           (change)="onChosenDate(openDate)">
+                    <label class="form-check-label" [for]="'exampleRadios' + i">
+                        <span>{{openDate.date}}, {{openDate.time}}</span> - <strong><span [ngClass]="{'text-danger': openDate.slots < currentSelectedClientNames.length }">{{openDate.slots}}/{{openDate.allSlots}}</span> available</strong>
+                    </label>
+                </div>
             </div>
-        </div>
+        </ng-container>
+        <p *ngIf="!isScheduleOpen">There are currently <strong class="text-danger">no open schedules</strong>. Press <strong>Cancel</strong> to close this window...</p>
     </ng-template>
     <ng-template appModalFooter let-closeModal>
-        <button class="btn btn-success mx-1" (click)="showActionSelectModal();closeModal()">Next</button>
+        <button class="btn btn-success mx-1"
+                (click)="showActionSelectModal();closeModal()"
+                [disabled]="!isScheduleOpen">Next</button>
         <button class="btn btn-danger mx-1" (click)="closeModal()">Cancel</button>
     </ng-template>
 </app-mod-modal>
@@ -184,8 +189,8 @@
                     <span>Reserve slots for this day to selected people.</span>
                 </label>
             </div>
-            <div class="alert alert-danger" role="alert" *ngIf="currentSelectedDate.slots < selectedClientNames.length">
-                There arent enough slots for this date! We will register only {{currentSelectedDate.slots}} out of {{selectedClientNames.length}} you chose!
+            <div class="alert alert-danger" role="alert" *ngIf="currentSelectedDate.slots < currentSelectedClientNames.length">
+                There arent enough slots for this date! We will register only {{currentSelectedDate.slots}} out of {{currentSelectedClientNames.length}} you chose!
             </div>
             <div class="form-group">
                 <input class="form-check-input"
@@ -200,7 +205,7 @@
                 </label>
             </div>
         </div>
-        <p class="mt-2"> <b>{{selectRowCount}}</b> text <span [innerHTML]="selectRowCount > 1 ? 'messages' : 'message'"></span> will be sent to inform them of the new schedule.</p>
+        <p class="mt-2"> <b>{{selectedRowCount}}</b> text <span [innerHTML]="selectedRowCount > 1 ? 'messages' : 'message'"></span> will be sent to inform them of the new schedule.</p>
     </ng-template>
     <ng-template appModalFooter let-closeModal>
         <button class="btn btn-success mx-1"
@@ -218,11 +223,11 @@
     <ng-template appModalBody>
         <p>You are about to send a message to the following people:</p>
         <ul class="list-group list-group-flush">
-            <li class="list-group-item" *ngFor="let clientName of selectedClientNames; index as i">
+            <li class="list-group-item" *ngFor="let clientName of currentSelectedClientNames; index as i">
                 {{ clientName }}
             </li>
           </ul>
-          <p> <b>{{selectRowCount}}</b> text <span [innerHTML]="selectRowCount > 1 ? 'people' : 'person'"></span> will receive the message.</p>
+          <p> <b>{{selectedRowCount}}</b> text <span [innerHTML]="selectedRowCount > 1 ? 'people' : 'person'"></span> will receive the message.</p>
     </ng-template>
     <ng-template appModalFooter let-closeModal>
         <button class="btn btn-success mx-1" (click)="showMessageModal();closeModal()">Confirm</button>
@@ -240,7 +245,7 @@
             <textarea class="form-control" id="exampleFormControlTextarea1" placeholder="start typing here..." rows="3" [(ngModel)]="textMessageString" maxlength="50"></textarea>
             <label for="exampleFormControlTextarea1" class="text-muted">{{textMessageString.length}} / 50 characters used</label>
         </div>
-        <p> <b>{{selectRowCount}}</b> text <span [innerHTML]="selectRowCount > 1 ? 'messages' : 'message'"></span> will be sent.</p>
+        <p> <b>{{selectedRowCount}}</b> text <span [innerHTML]="selectedRowCount > 1 ? 'messages' : 'message'"></span> will be sent.</p>
         <p> <strong>IMPORTANT:</strong> It will take some time for the recipients to get the message. THEY <b><span class="text-danger">CANNOT</span> REPLY</b> as well</p> 
         <p> <strong>Recommended:</strong> Contact them directly with your number. Press the button next to the name for their contact info. Cancel this first...</p>
     </ng-template>
