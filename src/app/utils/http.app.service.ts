@@ -1,6 +1,5 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { text } from '@fortawesome/fontawesome-svg-core';
 import { Moment } from 'moment';
 import { Client } from './client';
 

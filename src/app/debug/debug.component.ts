@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { Observable, of } from 'rxjs';
+import { map, mergeMap } from "rxjs/operators";
 import { HttpAppService } from '../utils/http.app.service';
 
 @Component({
@@ -15,10 +17,21 @@ export class DebugComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  testWrite() {
-    this.httpService.testWrite( {number : '+639663761426' , message : 'Hi! This is to inform you that you are awesome!'} ).subscribe( (data) => {
-      console.log(data);
-      this.isSent = true;
+  testMap() {
+    const test = of(1);
+    test.pipe(
+      mergeMap(() => {
+        console.log('uno');
+        return this.httpService.getOpenDates();
+      }),
+      mergeMap((scheduleData) => {
+        console.log('dos');
+        console.log(scheduleData);
+        return this.httpService.getClientData()
+      })
+    ).subscribe((clientData)=>{
+      console.log('treees');
+      console.log(clientData);
     });
   }
 }
