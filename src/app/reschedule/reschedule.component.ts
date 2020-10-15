@@ -1,6 +1,5 @@
 import { Component, EventEmitter, OnInit } from '@angular/core';
 import { faBan , faEnvelope , faCheckDouble , faArrowRight, faPaperPlane, faAddressBook, faSync } from "@fortawesome/free-solid-svg-icons";
-import * as moment from 'moment';
 import { of } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
 import { Client } from '../utils/client';
@@ -52,7 +51,7 @@ export class RescheduleComponent implements OnInit {
   toggleActionModal : EventEmitter<string>;
   toggleConnErrorModal : EventEmitter<string>;
 
-  constructor( private utils : UtilsService,
+  constructor( private dateTimeUtils : UtilsService,
                private  httpService : HttpAppService ) { }
 
   ngOnInit(): void {
@@ -63,7 +62,7 @@ export class RescheduleComponent implements OnInit {
     for( var  i = 0 ; i < this.allReschedClients.length ; i ++ ) { // initialize array of selected row indices
       this.rowSelected[i] = false;
     }
-    this.currentInfoClient = new Client(-1,'',moment(),'',1,'',''); // initialize dummy variable for client to check info with button
+    this.currentInfoClient = new Client(-1,'',this.dateTimeUtils.getCurrentDate(),'',1,'',''); // initialize dummy variable for client to check info with button
     this.currentSelectedDate = { date : '', time : '' , slots : -1 , allSlots : -1 }; // initialize dummy variable for current selected date
   }
 
@@ -104,7 +103,7 @@ export class RescheduleComponent implements OnInit {
           this.allReschedClients.push( new Client( // // initialize client based on Client object schema
             clientEl.client_id,
             clientEl.client_name,
-            this.utils.getDateFromFormat(clientEl.client_day,'MM/DD/YYYY'),
+            this.dateTimeUtils.getMomentObjectFromFormat(clientEl.client_day,'MM/DD/YYYY'),
             clientEl.client_time,
             parseInt(clientEl.client_order),
             clientEl.client_number,
@@ -225,16 +224,9 @@ export class RescheduleComponent implements OnInit {
       });
       console.log(this.openDates);
       this.openDates = this.openDates.filter(  // filter for dates on or before current dates
-        (openDate) => moment(openDate.date,'MMMM Do YYYY, dddd',true).isSameOrAfter( this.utils.getCurrentDate().add(1,'day') , 'date' ) 
+        (openDate) => this.dateTimeUtils.isStringFormatSameOrAfterToday( openDate.date , 'MMMM Do YYYY, dddd' , 'date' , 1 , 'day' )
       ).sort( (a,b) => { // sort the dates in ascending order
-        const dateA = moment(a.date,'MMMM Do YYYY, dddd',true); // turn the result into a Moment object for comparison
-        const dateB = moment(b.date,'MMMM Do YYYY, dddd',true); // same as before
-        if( dateA.isBefore( dateB , 'date' ) )
-          return -1;
-        else if( dateA.isAfter( dateB , 'date' ) )
-          return 1;
-        else
-          return 0;
+        return this.dateTimeUtils.isStringFormatSameOrAfter(  a.date , b.date , 'MMMM Do YYYY, dddd' , 'date' ) ? 1 : -1;
       });
       this.isScheduleOpen = this.openDates.length > 0; // check if an open schedule is available
       this.toggleDateSelectModal.emit('show'); // show the date selection modal
@@ -269,7 +261,7 @@ export class RescheduleComponent implements OnInit {
       case 'CTR': // TODO: manage race conditions for server writing
         this.currentSelectedClientIds = this.getSelectedClientIds(); // get the ids of selected clients
         const tempSelectedClients = this.getSelectedClients(); // store clients in a temporary variable for processing
-        const selectedDate = moment(this.currentSelectedDate.date,'MMMM Do YYYY, dddd' ,true); // convert currently selected date into Moment object
+        const selectedDate = this.dateTimeUtils.getMomentObjectFromFormat( this.currentSelectedDate.date , 'MMMM Do YYYY, dddd' ); // convert currently selected date into Moment object
         var selectedClients : Client[] = []; // get only the names available for the slot
         const limit : number = this.currentSelectedDate.slots < tempSelectedClients.length ? 
                                 this.currentSelectedDate.slots : tempSelectedClients.length; // assign the number of slots to provide to the limit. If number of selected clients exceed the number of slots, only allocate the number of remaining slots
@@ -318,7 +310,7 @@ export class RescheduleComponent implements OnInit {
         priorResched.pipe( // TODO: error handling
           mergeMap((taskCount)=>{ // insert client data into active clients database
             console.log(`started ${taskCount} tasks...`);
-            return this.httpService.postSchedClientsData( selectedClients , moment(this.currentSelectedDate.date,'MMMM Do YYYY, dddd' ,true) , this.currentSelectedDate.time );
+            return this.httpService.postSchedClientsData( selectedClients , this.dateTimeUtils.getMomentObjectFromFormat( this.currentSelectedDate.date , 'MMMM Do YYYY, dddd' ) , this.currentSelectedDate.time );
           }),
           mergeMap((postSchedClientsDataStatus)=>{  // remove the client entries from the reschedule database
             console.log(`postSchedClientsDataStatus: ${postSchedClientsDataStatus}`);

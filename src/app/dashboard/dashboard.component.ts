@@ -1,6 +1,5 @@
 import { Component, EventEmitter, OnInit } from '@angular/core';
 import { faBan , faEnvelope , faIdCard , faCheck , faChevronLeft , faChevronRight , faSync, faAddressBook } from "@fortawesome/free-solid-svg-icons";
-import * as moment from 'moment';
 import { Moment } from 'moment';
 import { of } from 'rxjs';
 import { map, mergeMap } from "rxjs/operators";
@@ -53,7 +52,7 @@ export class DashboardComponent implements OnInit {
   currentTimeBlockToRemove : Client[] = [];
   currentOpenSlotInstr : boolean = false;
 
-  constructor( private utils : UtilsService ,
+  constructor( private dateTimeUtils : UtilsService ,
                private httpAppService : HttpAppService ) {}
 
   ngOnInit(): void {
@@ -64,7 +63,7 @@ export class DashboardComponent implements OnInit {
     
     this.rightDisabled = this.distinctDates.length > 1; // disable right button if no other buttons are present
     this.currentDateIndex = 0; // set current displayed date to current one or closest to current date
-    this.currentClientToCheckInfo = new Client(0,'',this.utils.getCurrentDate(),'',0,'',''); // initialize current client to check
+    this.currentClientToCheckInfo = new Client(0,'',this.dateTimeUtils.getCurrentDate(),'',0,'',''); // initialize current client to check
   }
   
   setIcons() {
@@ -100,7 +99,7 @@ export class DashboardComponent implements OnInit {
           this.allClients.push( new Client( // initialize client based on Client object schema
             clientEl.client_id,
             clientEl.client_name,
-            this.utils.getDateFromFormat(clientEl.client_day,'MM/DD/YYYY'),
+            this.dateTimeUtils.getMomentObjectFromFormat(clientEl.client_day,'MM/DD/YYYY'),
             clientEl.client_time,
             parseInt(clientEl.client_order),
             clientEl.client_number,
@@ -120,10 +119,10 @@ export class DashboardComponent implements OnInit {
   }
 
   getDistinctDatesFromNow( inputClients : Client[] ) { // get an array of distinct dates of registered clients that are on or after the current date
-    const distinctDates = [ ...new Set( inputClients.map( (client) => client.date.format() ) )]; // get distinct dates from the list of all clients
-    var currentDate = this.utils.getCurrentDate(); // get the current date
+    const distinctDates = [ ...new Set( inputClients.map( (client) =>  this.dateTimeUtils.convertMomentISOToString(client.date) ) )]; // get distinct dates from the list of all clients
+    var currentDate = this.dateTimeUtils.getCurrentDate(); // get the current date
     return distinctDates
-      .map( ( distinctDate : string ) => moment( distinctDate ) ) // convert distinct dates from string into Moment objects and push into the list to return
+      .map( ( distinctDate : string ) => this.dateTimeUtils.getMomentObjectFromISO(distinctDate) ) // convert distinct dates from string into Moment objects and push into the list to return
       .sort( (a,b) => a.isSameOrAfter(b,'date') ? 1 : -1) // sort the dates by date, in ascending order
       .filter( (date) => date.isSameOrAfter( currentDate , 'date' ) ); // filter for dates that are on or after the current date
   }
@@ -132,7 +131,7 @@ export class DashboardComponent implements OnInit {
     var differentDateTimes = [];
     var clientsForDate = this.getClientsForDate( inputDate ); // get array of clients for the specified date
     const distinctTimes = [ ... new Set( clientsForDate.map( (client) => client.time ))]; // get array of distinct times for the clients of the specified date
-    distinctTimes.sort( (a,b) => moment(a.split('-')[0],'hh:mm',true).isSameOrAfter( moment(b.split('-')[0],'hh:mm',true) , 'hour' ) ? 1 : -1 ); // sort the array by time, ascending order
+    distinctTimes.sort( (a,b) => this.dateTimeUtils.isStringFormatSameOrAfter(a.split('-')[0],b.split('-')[0],'hh:mm','hour') ? 1 : -1 ); // sort the array by time, ascending order
     distinctTimes.forEach( ( uniqueTime ) => {
       differentDateTimes.push( // for each unique time push clients with time equal to the unique time
         clientsForDate.filter( (date) => date.time == uniqueTime )

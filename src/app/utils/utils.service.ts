@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as moment from 'moment';
+import { Moment } from 'moment';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,6 @@ export class UtilsService {
     var currentDate = moment();
   
     const weekStart = currentDate.clone().startOf('isoWeek');
-    const weekEnd = currentDate.clone().endOf('isoWeek');
   
     var days = [];
   
@@ -24,10 +24,6 @@ export class UtilsService {
 
   getCurrentDate() {
     return moment();
-  }
-
-  getCurrentDateMidnight() {
-    return moment(moment().format('MM/DD/YY'),'MM/DD/YY',true);
   }
 
   getCurrentDayString() {
@@ -43,7 +39,31 @@ export class UtilsService {
     return moment( amStringFinal , 'MM/DD/YYYY' , true ).format("MMMM Do YYYY, dddd");
   }
 
-  getDateFromFormat( dateString : string , format : string ) {
+  getMomentObjectFromFormat( dateString : string , format : string ) {
     return moment( dateString , format , true );
   }
+
+  getMomentObjectFromISO( inputString : string ) : Moment {
+    return moment(inputString);
+  }
+
+  convertMomentISOToString( inputMoment : Moment ) : string {
+    return inputMoment.format();
+  }
+
+  isStringFormatSameOrAfter( _dateTimeA : string , _dateTimeB : string , format : string , dateTimeUnit : moment.unitOfTime.StartOf ) : boolean {
+    const dateTimeA = moment( _dateTimeA , format , true );
+    const dateTimeB = moment( _dateTimeB , format , true );
+    return dateTimeA.isSameOrAfter( dateTimeB  , dateTimeUnit );
+  }
+
+  isStringFormatSameOrAfterToday( _dateTimeA : string , format : string , dateTimeUnit : moment.unitOfTime.StartOf , period? : number , periodUnit? : moment.unitOfTime.DurationConstructor ) : boolean {
+    const dateTimeA = moment( _dateTimeA , format , true );
+    const dateTimeB = this.getCurrentDate();
+    if (period === undefined || periodUnit === undefined )
+      return dateTimeA.isSameOrAfter( dateTimeB  , dateTimeUnit ); 
+    return dateTimeA.isSameOrAfter( dateTimeB.add(period,periodUnit) , dateTimeUnit );
+  }
+
 }
+
