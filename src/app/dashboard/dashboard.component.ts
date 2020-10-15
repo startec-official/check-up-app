@@ -167,8 +167,7 @@ export class DashboardComponent implements OnInit {
       mergeMap((removedClientStatus) => {
         console.log("Removed Client Status: " + removedClientStatus);
         
-        // return this.httpAppService.sendMovedToReschedMessage( clientsToResched.map((client : Client )=> client.contactNumber )); // send signal to device to send message to rescheduled clients
-        return of('OK');
+        return this.httpAppService.sendMovedToReschedMessage( clientsToResched.map((client : Client )=> client.contactNumber )); // send signal to device to send message to rescheduled clients
       }),
       mergeMap((sendMovedToReschedStatus)=>{
         console.log("send Moved To Resched Status: " + sendMovedToReschedStatus);

@@ -20,7 +20,6 @@ export class RescheduleComponent implements OnInit {
   rowSelected : boolean[] = []; // holds all clients currently selected
   openDates : { date : string , time : string , slots : number , allSlots : number }[] = []; // holds objects of dates available for rescheduling
 
-  // TODO: set these to null once data has been consumed
   // temporary variables for operations
   currentSelectedClientIds : number[] = []; // holds currently selected client ids
   currentSelectedClientNames : string[] = []; /// holds the names of the currently selected clients
@@ -296,11 +295,10 @@ export class RescheduleComponent implements OnInit {
           }),
           mergeMap((removeFromReschedStatus)=>{ // send a signal to the server to send a message to rescheduled clients
             console.log(`removeFromReschedStatus: ${removeFromReschedStatus}`);
-            // return this.httpService.sendReschedMessage( selectedDate ,
-            //   this.currentSelectedDate.time ,
-            //   selectedClients.map((client)=>client.contactNumber) ,
-            //   selectedClients.map(()=> 'ABCD' )); // TODO: replace with client codes
-            return of('OK');
+            return this.httpService.sendReschedMessage( selectedDate ,
+              this.currentSelectedDate.time ,
+              selectedClients.map((client)=>client.contactNumber) ,
+              selectedClients.map(()=> 'ABCD' )); // TODO: replace with client codes
           })
         ).subscribe((sendReschedMessageStatus)=>{
           console.log(`sendReschedMessageStatus: ${sendReschedMessageStatus}`);
@@ -328,11 +326,10 @@ export class RescheduleComponent implements OnInit {
           }),
           mergeMap((removeFromReschedStatus)=>{
             console.log(`removeFromReschedStatus: ${removeFromReschedStatus}`);
-            // return this.httpService.sendReschedMessage( selectedDate ,
-            //   this.currentSelectedDate.time ,
-            //   selectedClients.map((client)=>client.contactNumber) ,
-            //   selectedClients.map(()=> 'ABCD' )); // TODO: replace with client codes
-            return of('OK');
+            return this.httpService.sendReschedMessage( selectedDate ,
+              this.currentSelectedDate.time ,
+              selectedClients.map((client)=>client.contactNumber) ,
+              selectedClients.map(()=> 'ABCD' )); // TODO: replace with client codes
           })
         ).subscribe((sendReschedMessage)=>{
           console.log(`sendReschedMessage: ${sendReschedMessage}`);
@@ -352,12 +349,12 @@ export class RescheduleComponent implements OnInit {
     this.isDoneLoading = false;
     this.toggleLoadingModal.emit('show'); // show the loading modal
     this.currentSelectedClientIds = this.getSelectedClientIds(); // get the ids of the selected clients
+    let selectedClients = this.getSelectedClients();
     const permCancel = of(2); // set dummy observable to run all sequential tasks
     permCancel.pipe( // TODO: error handling
       mergeMap((taskCount)=>{
         console.log(`started ${taskCount} tasks...`); // send signal to server to send message to all clients about permanent cancellation
-        // return this.httpService.sendCancelledMessage( selectedClients.map((client)=>client.contactNumber) );
-        return of('OK');
+        return this.httpService.sendCancelledMessage( selectedClients.map((client)=>client.contactNumber) );
       }),
       mergeMap((sendCancelledMessageStatus)=>{ // remove clients from the array and the view to match database
         console.log(`sendCancelledMessageStatus: ${sendCancelledMessageStatus}`);

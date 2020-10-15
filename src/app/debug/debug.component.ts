@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { map, mergeMap } from "rxjs/operators";
+import { iif, NEVER, Observable, of } from 'rxjs';
+import { map, merge, mergeMap } from "rxjs/operators";
 import { HttpAppService } from '../utils/http.app.service';
 
 @Component({
@@ -18,20 +18,20 @@ export class DebugComponent implements OnInit {
   }
 
   testMap() {
-    const test = of(1);
+    const test = of(true);
     test.pipe(
-      mergeMap(() => {
-        console.log('uno');
-        return this.httpService.getOpenDates();
-      }),
-      mergeMap((scheduleData) => {
-        console.log('dos');
-        console.log(scheduleData);
-        return this.httpService.getClientData()
-      })
+      mergeMap((condition:boolean) => iif(() => condition === true ,
+        this.httpService.getOpenDates().pipe(
+          mergeMap((clientData) => {
+            console.log(`client Data: ${clientData}`);
+            return this.httpService.getOpenDates();
+          })
+        ), of('cancelled') ))
     ).subscribe((clientData)=>{
-      console.log('treees');
-      console.log(clientData);
+      if( clientData == 'cancelled' )
+        console.log('ay nooo');
+      else 
+        console.log(clientData);
     });
   }
 }

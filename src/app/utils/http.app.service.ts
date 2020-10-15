@@ -25,9 +25,15 @@ export class HttpAppService {
   }
 
   public getClientData() {
-    return this.http.get( `http://localhost:3000/clients/displayAll`, { 
+    return this.http.get( `http://localhost:3000/clients/display/all`, { 
       headers: { 'Content-Type' : 'application/json' } 
     });
+  }
+
+  public getClientContactPairs( currentDate : string ) {
+     return this.http.get(`http://localhost:3000/clients/display/contactpairs/${currentDate}` , {
+       headers : { 'Content-Type' : 'application/json' }
+     });
   }
 
   public getOutDays() {
@@ -62,6 +68,13 @@ export class HttpAppService {
   public updateSchedSlot( date : Moment , time : string , increment : number ) {
     // MMMM Do YYYY, dddd
     return this.http.post( `http://localhost:3000/schedule/changeslot/${date.format()}/${time}/${ increment }` , null , {
+      headers : { 'Content-Type' : 'application/json' },
+      responseType : 'text'
+    });
+  }
+
+  public updateSchedSlotsForDate( date : string ) {
+    return this.http.post( `http://localhost:3000/schedule/fillslot/${date}` , null , {
       headers : { 'Content-Type' : 'application/json' },
       responseType : 'text'
     });
