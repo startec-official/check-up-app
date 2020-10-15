@@ -3,7 +3,7 @@ import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import { HttpAppService } from '../utils/http.app.service';
 import { UtilsService } from '../utils/utils.service';
 import { map, mergeMap } from "rxjs/operators";
-import { EMPTY, iif, NEVER, of } from 'rxjs';
+import { iif, of } from 'rxjs';
 
 @Component({
   selector: 'app-unavaiable-page',
