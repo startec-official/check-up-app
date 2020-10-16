@@ -62,7 +62,7 @@ export class RescheduleComponent implements OnInit {
     for( var  i = 0 ; i < this.allReschedClients.length ; i ++ ) { // initialize array of selected row indices
       this.rowSelected[i] = false;
     }
-    this.currentInfoClient = new Client(-1,'',this.dateTimeUtils.getCurrentDate(),'',1,'',''); // initialize dummy variable for client to check info with button
+    this.currentInfoClient = new Client(-1,'',this.dateTimeUtils.getCurrentDate(),'',1,'','',''); // initialize dummy variable for client to check info with button
     this.currentSelectedDate = { date : '', time : '' , slots : -1 , allSlots : -1 }; // initialize dummy variable for current selected date
   }
 
@@ -107,6 +107,7 @@ export class RescheduleComponent implements OnInit {
             clientEl.client_time,
             parseInt(clientEl.client_order),
             clientEl.client_number,
+            clientEl.client_code,
             clientEl.client_reason
           ));
         });
@@ -290,7 +291,7 @@ export class RescheduleComponent implements OnInit {
             return this.httpService.sendReschedMessage( selectedDate ,
               this.currentSelectedDate.time ,
               selectedClients.map((client)=>client.contactNumber) ,
-              selectedClients.map(()=> 'ABCD' )); // TODO: replace with client codes
+              selectedClients.map((client)=> client.code ));
           })
         ).subscribe((sendReschedMessageStatus)=>{
           console.log(`sendReschedMessageStatus: ${sendReschedMessageStatus}`);
@@ -321,7 +322,7 @@ export class RescheduleComponent implements OnInit {
             return this.httpService.sendReschedMessage( selectedDate ,
               this.currentSelectedDate.time ,
               selectedClients.map((client)=>client.contactNumber) ,
-              selectedClients.map(()=> 'ABCD' )); // TODO: replace with client codes
+              selectedClients.map((client)=> client.code ));
           })
         ).subscribe((sendReschedMessage)=>{
           console.log(`sendReschedMessage: ${sendReschedMessage}`);

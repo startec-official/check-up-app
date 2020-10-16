@@ -67,6 +67,7 @@ export class HttpAppService {
 
   public updateSchedSlot( date : Moment , time : string , increment : number ) {
     // MMMM Do YYYY, dddd
+    console.log(`date: ${date}, time: ${time}, increment: ${increment}`);
     return this.http.post( `http://localhost:3000/schedule/changeslot/${date.format()}/${time}/${ increment }` , null , {
       headers : { 'Content-Type' : 'application/json' },
       responseType : 'text'

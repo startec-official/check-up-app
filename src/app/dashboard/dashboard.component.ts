@@ -63,7 +63,7 @@ export class DashboardComponent implements OnInit {
     
     this.rightDisabled = this.distinctDates.length > 1; // disable right button if no other buttons are present
     this.currentDateIndex = 0; // set current displayed date to current one or closest to current date
-    this.currentClientToCheckInfo = new Client(0,'',this.dateTimeUtils.getCurrentDate(),'',0,'',''); // initialize current client to check
+    this.currentClientToCheckInfo = new Client(0,'',this.dateTimeUtils.getCurrentDate(),'',0,'','',''); // initialize current client to check
   }
   
   setIcons() {
@@ -103,6 +103,7 @@ export class DashboardComponent implements OnInit {
             clientEl.client_time,
             parseInt(clientEl.client_order),
             clientEl.client_number,
+            clientEl.client_code,
             clientEl.client_reason
           ));
         });
@@ -142,7 +143,10 @@ export class DashboardComponent implements OnInit {
 
   updateView() { // assign clients to the variable to trigger change of dashboard view
     this.distinctDates = this.getDistinctDatesFromNow( this.allClients ); // get distinct dates of registered clients that are on or after the current date
-    this.distinctTimesForClientsOfDay = this.getClientsForDateSepByTime( this.distinctDates[ this.currentDateIndex ] ); // assigns array of clients of the current date grouped by assigned time
+    if( this.distinctDates[ this.currentDateIndex ] === undefined ) // if there are no more appointments left, set to empty instead
+      this.isEmpty = true;
+    else
+      this.distinctTimesForClientsOfDay = this.getClientsForDateSepByTime( this.distinctDates[ this.currentDateIndex ] ); // assigns array of clients of the current date grouped by assigned time
   }
 
   onConfirmReschedule( clientsToResched : Client[] ) { // moves clients from the active client database to the reschedule clients database
@@ -155,7 +159,7 @@ export class DashboardComponent implements OnInit {
     this.toggleLoadingModal.emit('show'); // show loading modal
     confirmReschedule.pipe( // TODO: error handling using retry
       mergeMap((taskCount)=>{ // use merge map for sequential observable runs
-        console.log('running ' + taskCount + ' tasks...');
+        console.log('running ' + taskCount + ' tasks in conConfirmReschedule...');
         return this.httpAppService.postReschedClientsData(clientsToResched); // transfer client data to the reschedule clients database
       }),
       mergeMap((postReschedStatus)=>{
