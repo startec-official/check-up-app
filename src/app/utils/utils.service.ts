@@ -11,7 +11,7 @@ export class UtilsService {
   
   getCurrentWeek() {
     var currentDate = moment();
-  
+      
     const weekStart = currentDate.clone().startOf('isoWeek');
   
     var days = [];
@@ -66,4 +66,3 @@ export class UtilsService {
   }
 
 }
-
