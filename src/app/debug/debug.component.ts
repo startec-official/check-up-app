@@ -18,20 +18,24 @@ export class DebugComponent implements OnInit {
   }
 
   testMap() {
-    const test = of(true);
-    test.pipe(
-      mergeMap((condition:boolean) => iif(() => condition === true ,
-        this.httpService.getOpenDates().pipe(
-          mergeMap((clientData) => {
-            console.log(`client Data: ${clientData}`);
-            return this.httpService.getOpenDates();
-          })
-        ), of('cancelled') ))
-    ).subscribe((clientData)=>{
-      if( clientData == 'cancelled' )
-        console.log('ay nooo');
-      else 
-        console.log(clientData);
+    console.log('button pressed!');
+    this.httpService.testWrite( { 'message' : 'hello life!' } ).subscribe( (data) => {
+      console.log(data);
     });
+    // const test = of(true);
+    // test.pipe(
+    //   mergeMap((condition:boolean) => iif(() => condition === true ,
+    //     this.httpService.getOpenDates().pipe(
+    //       mergeMap((clientData) => {
+    //         console.log(`client Data: ${clientData}`);
+    //         return this.httpService.getOpenDates();
+    //       })
+    //     ), of('cancelled') ))
+    // ).subscribe((clientData)=>{
+    //   if( clientData == 'cancelled' )
+    //     console.log('ay nooo');
+    //   else 
+    //     console.log(clientData);
+    // });
   }
 }

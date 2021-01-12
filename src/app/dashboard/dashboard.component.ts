@@ -55,6 +55,10 @@ export class DashboardComponent implements OnInit {
   constructor( private dateTimeUtils : UtilsService ,
                private httpAppService : HttpAppService ) {}
 
+  // TODO: user login
+  // TODO: print customers and code
+  // TODO: send text to completed clients
+
   ngOnInit(): void {
     
     this.fetchClients();
